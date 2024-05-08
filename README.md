@@ -1,9 +1,11 @@
 ## Installation
+- This analysis framework requires only ROOT (you don't need to set up CMSSW but need to check ROOT version dependency)
 - ```cmsrel CMSSW_10_2_16_UL```
 - ```cd CMSSW_10_2_16_UL/src```
 - ```cmsenv```
 - ```git clone git@github.com:cghuh/ttbarToBsToTauTau.git```
 - ```python condor/setup.py```
+
 
 After running the setup.py, the filelists are automatically generated using condor/filelist_2018.txt
 
