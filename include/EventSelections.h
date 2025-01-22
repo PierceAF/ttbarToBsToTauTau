@@ -33,11 +33,10 @@ public:
 
   enum Regions : size_t {
     // Preection regions
-    Pre_Lep,
+    Pre_1Lep,
     Pre_Had,
-		Pre_Lep_2tau,
-		Pre_Lep_2tau_MET,
-		Pre_Had_2tau
+    Pre_2Lep,
+		Pre_1Lep_MT,
       };
   typedef Regions Region;
 
@@ -367,48 +366,21 @@ EventSelections::define_event_selections()
   if (v.sample.Contains("SingleElectron")||v.sample.Contains("EGamma")) {
     leptonic_triggers = [this] {
       if (v.year==2016) return
-        v.HLT_Ele15_IsoVVVL_PFHT350==1 ||
-        v.HLT_Ele15_IsoVVVL_PFHT400==1 ||
-        v.HLT_Ele15_IsoVVVL_PFHT450==1 ||
-        v.HLT_Ele15_IsoVVVL_PFHT600==1 ||
         v.HLT_Ele27_WPTight_Gsf==1 ||
-        v.HLT_Ele30_WPTight_Gsf==1 ||
-        v.HLT_Ele32_WPTight_Gsf==1 ||
-        v.HLT_Ele105_CaloIdVT_GsfTrkIdT==1 ||
-        v.HLT_Ele115_CaloIdVT_GsfTrkIdT==1;
       else return
         v.HLT_Ele32_WPTight_Gsf==1 ||
-        v.HLT_Ele35_WPTight_Gsf==1 ||
-        v.HLT_Ele38_WPTight_Gsf==1 ||
-        v.HLT_Ele105_CaloIdVT_GsfTrkIdT==1 ||
-        v.HLT_Ele115_CaloIdVT_GsfTrkIdT==1;
     };
   } else if (v.sample.Contains("SingleMuon")) {
     leptonic_triggers = [this] {
       // Veto events already collected by Single Electron trigger
       if (v.year==2016) {
         return
-        v.HLT_Mu15_IsoVVVL_PFHT350==1 ||
-        v.HLT_Mu15_IsoVVVL_PFHT400==1 ||
-        v.HLT_Mu15_IsoVVVL_PFHT450==1 ||
-        v.HLT_Mu15_IsoVVVL_PFHT600==1 ||
         v.HLT_IsoMu24==1 ||
         v.HLT_IsoTkMu24==1 ||
-        v.HLT_Mu50==1 ||
-        v.HLT_TkMu50==1 ||
-        v.HLT_Mu55==1;
       } else {
         return
-        v.HLT_Mu15_IsoVVVL_PFHT350==1 ||
-        v.HLT_Mu15_IsoVVVL_PFHT400==1 ||
-        v.HLT_Mu15_IsoVVVL_PFHT450==1 ||
-        v.HLT_Mu15_IsoVVVL_PFHT600==1 ||
         v.HLT_IsoMu27==1 ||
         v.HLT_IsoTkMu27==1 ||
-        v.HLT_Mu50==1 ||
-        v.HLT_TkMu50==1||
-        v.HLT_Mu55==1 ||
-        v.HLT_OldMu100==1||v.HLT_TkMu100==1;
       }
     };
   } else {
@@ -430,12 +402,17 @@ EventSelections::define_event_selections()
   v.get_signal_mass();
 
   // Preselection leptonic regions
-  analysis_cuts[Region::Pre_Lep] = {
+  analysis_cuts[Region::Pre_1Lep] = {
     { .name="NJetPre",    .func = [this] { return v.Jet.Jet.n>=4;              }},
     { .name="1Lep",       .func = [this] { return v.nLepSelect==1;             }},
     { .name="HLT",        .func =                leptonic_triggers              },
     { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;            }},
-    //{ .name="dPhi",       .func = [this] { return v.minDeltaPhi>0.5;                  }},
+  };
+  analysis_cuts[Region::Pre_2Lep] = {
+    { .name="NJetPre",    .func = [this] { return v.Jet.Jet.n>=4;              }},
+    { .name="1Lep",       .func = [this] { return v.nLepSelect==2;             }},
+    { .name="HLT",        .func =                leptonic_triggers              },
+    { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;            }},
   };
   // Preselection hadronic regions
   analysis_cuts[Region::Pre_Had] = {
@@ -445,28 +422,12 @@ EventSelections::define_event_selections()
     { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;            }},
   };
   // Preselection leptonic regions
-  analysis_cuts[Region::Pre_Lep_2tau] = {
+  analysis_cuts[Region::Pre_1Lep_MT] = {
     { .name="NJetPre",    .func = [this] { return v.Jet.Jet.n>=4;              }},
     { .name="1Lep",       .func = [this] { return v.nLepSelect==1;             }},
     { .name="HLT",        .func =                leptonic_triggers              },
     { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;            }},
     { .name="MT",         .func = [this] { return v.MT>=80;                   }},
-  };
-  // Preselection leptonic regions
-  analysis_cuts[Region::Pre_Lep_2tau_MET] = {
-    { .name="NJetPre",    .func = [this] { return v.Jet.Jet.n>=4;              }},
-    { .name="1Lep",       .func = [this] { return v.nLepSelect==1;             }},
-    { .name="HLT",        .func =                leptonic_triggers              },
-    { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;            }},
-    { .name="MT",         .func = [this] { return v.MT>=80;                   }},
-    { .name="MET",        .func = [this] { return v.MET_pt>=40;            }},
-  };
-  // Preselection hadronic regions
-  analysis_cuts[Region::Pre_Had_2tau] = {
-    { .name="NJetPre",    .func = [this] { return v.Jet.Jet.n>=6;              }},
-    { .name="1Lep",       .func = [this] { return v.nLepVeto==0;             }},
-    { .name="HLT",        .func =                hadronic_triggers              },
-    { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;            }},
   };
 
 }

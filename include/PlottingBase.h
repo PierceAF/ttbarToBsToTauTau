@@ -894,7 +894,7 @@ PlottingBase::define_histo_settings(const Weighting& w, EventSelections& evt_sel
 	// ------------------------ Signals ------------------------
 
 	if (debug) std::cout<<"PlottingBase::define_histo_settings: ok4"<<std::endl;
-	std::vector<Sample> signal_all, signal_selected, signal_fastsim, signal_gluino, signal_squark, signal_ewk, signal_top, signal_V, signal_H, signal_RPV;
+	std::vector<Sample> signal_all;
 
 	signal_all.push_back({ .postfix="ttbarToBsToTauTau",           .legend="ttbarToBsToTauTau",        .color=DCyan,     .dirs={
 			"ttbarToBsToTauTau_BsFilter_TauTauFilter_TuneCP5_13TeV-pythia8-evtgen" } });
@@ -947,9 +947,7 @@ PlottingBase::define_histo_settings(const Weighting& w, EventSelections& evt_sel
 			if (triggers_opt.index==0) {
 			if (v.year<2018) {
 			// SingleElectron
-			if (!(v.HLT_Ele27_WPTight_Gsf==1||v.HLT_Ele30_WPTight_Gsf==1 ||
-						v.HLT_Ele32_WPTight_Gsf==1||v.HLT_Ele35_WPTight_Gsf==1||v.HLT_Ele38_WPTight_Gsf==1||
-						v.HLT_Ele105_CaloIdVT_GsfTrkIdT==1||v.HLT_Ele115_CaloIdVT_GsfTrkIdT==1)) return (size_t)-1;
+			if (!(v.HLT_Ele27_WPTight_Gsf==1||v.HLT_Ele32_WPTight_Gsf==1)) return (size_t)-1;
 			if (!(v.Electron.Select.n==1&&v.Muon.Veto.n==0)) return (size_t)-1;
 			if (v.Jet.Jet.n<2) return (size_t)-1;
 			if (v.R2<0.08) return (size_t)-1;
@@ -978,8 +976,7 @@ PlottingBase::define_histo_settings(const Weighting& w, EventSelections& evt_sel
 			v.HLT_Photon250_NoHE==1 ||
 			v.HLT_Photon300_NoHE==1;
 			if ( (v.HLT_Ele27_WPTight_Gsf==1||v.HLT_Ele30_WPTight_Gsf==1 ||
-						v.HLT_Ele32_WPTight_Gsf==1||v.HLT_Ele35_WPTight_Gsf==1||v.HLT_Ele38_WPTight_Gsf==1||
-						v.HLT_Ele105_CaloIdVT_GsfTrkIdT==1||v.HLT_Ele115_CaloIdVT_GsfTrkIdT==1) &&
+						v.HLT_Ele32_WPTight_Gsf==1) &&
 					(v.Electron.Select.n==1&&v.Muon.Veto.n==0) &&
 					(v.Jet.Jet.n>=2) &&
 					(v.R2>=0.08) &&
@@ -1021,8 +1018,7 @@ PlottingBase::define_histo_settings(const Weighting& w, EventSelections& evt_sel
 				if (v.MR_pho<800) return (size_t)-1;
 				i = 1;
 			} else if (triggers_opt.index==2) { // SingleMuon
-				if (!(v.HLT_IsoMu24==1||v.HLT_IsoTkMu24==1||v.HLT_IsoMu27==1||v.HLT_IsoTkMu27==1||
-							v.HLT_Mu50==1||v.HLT_TkMu50==1||v.HLT_Mu55==1||v.HLT_OldMu100==1||v.HLT_TkMu100==1)) return (size_t)-1;
+				if (!(v.HLT_IsoMu24==1||v.HLT_IsoTkMu24==1||v.HLT_IsoMu27==1||v.HLT_IsoTkMu27==1)) return (size_t)-1;
 				if (!(v.Muon.Select.n==1&&v.Electron.Veto.n==0)) return (size_t)-1;
 				if (v.Jet.Jet.n<2) return (size_t)-1;
 				if (v.R2<0.08) return (size_t)-1;
@@ -1048,8 +1044,7 @@ sh.AddNewPostfix("HadronicMeasurementsNoR2", [this]() {
 		if (v.year<2018) {
 		// SingleElectron
 		if (!(v.HLT_Ele27_WPTight_Gsf==1||v.HLT_Ele30_WPTight_Gsf==1 ||
-					v.HLT_Ele32_WPTight_Gsf==1||v.HLT_Ele35_WPTight_Gsf==1||v.HLT_Ele38_WPTight_Gsf==1||
-					v.HLT_Ele105_CaloIdVT_GsfTrkIdT==1||v.HLT_Ele115_CaloIdVT_GsfTrkIdT==1)) return (size_t)-1;
+					v.HLT_Ele32_WPTight_Gsf==1)) return (size_t)-1;
 		if (!(v.Electron.Select.n==1&&v.Muon.Veto.n==0)) return (size_t)-1;
 		if (v.Jet.Jet.n<2) return (size_t)-1;
 		if (v.MR<800) return (size_t)-1;
@@ -1077,8 +1072,7 @@ sh.AddNewPostfix("HadronicMeasurementsNoR2", [this]() {
 		v.HLT_Photon250_NoHE==1 ||
 		v.HLT_Photon300_NoHE==1;
 		if ( (v.HLT_Ele27_WPTight_Gsf==1||v.HLT_Ele30_WPTight_Gsf==1 ||
-					v.HLT_Ele32_WPTight_Gsf==1||v.HLT_Ele35_WPTight_Gsf==1||v.HLT_Ele38_WPTight_Gsf==1||
-					v.HLT_Ele105_CaloIdVT_GsfTrkIdT==1||v.HLT_Ele115_CaloIdVT_GsfTrkIdT==1) &&
+					v.HLT_Ele32_WPTight_Gsf==1) &&
 				(v.Electron.Select.n==1&&v.Muon.Veto.n==0) &&
 				(v.Jet.Jet.n>=2) &&
 				(v.MR>=800) ) {
@@ -1117,8 +1111,7 @@ sh.AddNewPostfix("HadronicMeasurementsNoR2", [this]() {
 			if (v.MR_pho<800) return (size_t)-1;
 			i = 1;
 		} else if (triggers_opt.index==2) { // SingleMuon
-			if (!(v.HLT_IsoMu24==1||v.HLT_IsoTkMu24==1||v.HLT_IsoMu27==1||v.HLT_IsoTkMu27==1||
-						v.HLT_Mu50==1||v.HLT_TkMu50==1||v.HLT_Mu55==1||v.HLT_OldMu100==1||v.HLT_TkMu100==1)) return (size_t)-1;
+			if (!(v.HLT_IsoMu24==1||v.HLT_IsoTkMu24==1||v.HLT_IsoMu27==1||v.HLT_IsoTkMu27==1)) return (size_t)-1;
 			if (!(v.Muon.Select.n==1&&v.Electron.Veto.n==0)) return (size_t)-1;
 			if (v.Jet.Jet.n<2) return (size_t)-1;
 			if (v.MR<800) return (size_t)-1;
@@ -1141,8 +1134,7 @@ sh.AddNewPostfix("HadronicMeasurementsInvR2", [this]() {
 		if (v.year<2018) {
 		// SingleElectron
 		if (!(v.HLT_Ele27_WPTight_Gsf==1||v.HLT_Ele30_WPTight_Gsf==1 ||
-					v.HLT_Ele32_WPTight_Gsf==1||v.HLT_Ele35_WPTight_Gsf==1||v.HLT_Ele38_WPTight_Gsf==1||
-					v.HLT_Ele105_CaloIdVT_GsfTrkIdT==1||v.HLT_Ele115_CaloIdVT_GsfTrkIdT==1)) return (size_t)-1;
+					v.HLT_Ele32_WPTight_Gsf==1)) return (size_t)-1;
 		if (!(v.Electron.Select.n==1&&v.Muon.Veto.n==0)) return (size_t)-1;
 		if (v.Jet.Jet.n<2) return (size_t)-1;
 		if (v.R2>=0.08) return (size_t)-1;
@@ -1171,8 +1163,7 @@ sh.AddNewPostfix("HadronicMeasurementsInvR2", [this]() {
 		v.HLT_Photon250_NoHE==1 ||
 		v.HLT_Photon300_NoHE==1;
 		if ( (v.HLT_Ele27_WPTight_Gsf==1||v.HLT_Ele30_WPTight_Gsf==1 ||
-					v.HLT_Ele32_WPTight_Gsf==1||v.HLT_Ele35_WPTight_Gsf==1||v.HLT_Ele38_WPTight_Gsf==1||
-					v.HLT_Ele105_CaloIdVT_GsfTrkIdT==1||v.HLT_Ele115_CaloIdVT_GsfTrkIdT==1) &&
+					v.HLT_Ele32_WPTight_Gsf==1) &&
 				(v.Electron.Select.n==1&&v.Muon.Veto.n==0) &&
 				(v.Jet.Jet.n>=2) &&
 				(v.R2>=0.08) &&
@@ -1214,8 +1205,7 @@ sh.AddNewPostfix("HadronicMeasurementsInvR2", [this]() {
 			if (v.MR_pho<800) return (size_t)-1;
 			i = 1;
 		} else if (triggers_opt.index==2) { // SingleMuon
-			if (!(v.HLT_IsoMu24==1||v.HLT_IsoTkMu24==1||v.HLT_IsoMu27==1||v.HLT_IsoTkMu27==1||
-						v.HLT_Mu50==1||v.HLT_TkMu50==1||v.HLT_Mu55==1||v.HLT_OldMu100==1||v.HLT_TkMu100==1)) return (size_t)-1;
+			if (!(v.HLT_IsoMu24==1||v.HLT_IsoTkMu24==1||v.HLT_IsoMu27==1||v.HLT_IsoTkMu27==1)) return (size_t)-1;
 			if (!(v.Muon.Select.n==1&&v.Electron.Veto.n==0)) return (size_t)-1;
 			if (v.Jet.Jet.n<2) return (size_t)-1;
 			if (v.R2>=0.08) return (size_t)-1;
@@ -1239,13 +1229,8 @@ sh.AddNewPostfix("NonIsoLepMeasurements", [this]() {
 		if (triggers_opt.index==0) {
 		if (v.year<2018) {
 		// SingleElectron
-		if (!(v.HLT_Ele15_IsoVVVL_PFHT350==1 ||
-					v.HLT_Ele15_IsoVVVL_PFHT400==1 ||
-					v.HLT_Ele15_IsoVVVL_PFHT450==1 ||
-					v.HLT_Ele15_IsoVVVL_PFHT600==1 ||
-					v.HLT_Ele27_WPTight_Gsf==1||v.HLT_Ele30_WPTight_Gsf==1 ||
-					v.HLT_Ele32_WPTight_Gsf==1||v.HLT_Ele35_WPTight_Gsf==1||v.HLT_Ele38_WPTight_Gsf==1||
-					v.HLT_Ele105_CaloIdVT_GsfTrkIdT==1||v.HLT_Ele115_CaloIdVT_GsfTrkIdT==1)) return (size_t)-1;
+		if (!(v.HLT_Ele27_WPTight_Gsf==1||v.HLT_Ele30_WPTight_Gsf==1 ||
+					v.HLT_Ele32_WPTight_Gsf==1)) return (size_t)-1;
 		if (!(v.Electron.NonIso.n==1&&v.Muon.Veto.n==0)) return (size_t)-1;
 		if (v.Jet.Jet.n<2) return (size_t)-1;
 		if (v.R2<0.08) return (size_t)-1;
@@ -1254,8 +1239,7 @@ sh.AddNewPostfix("NonIsoLepMeasurements", [this]() {
 		} else {
 		// EGamma
 		if ( (v.HLT_Ele27_WPTight_Gsf==1||v.HLT_Ele30_WPTight_Gsf==1 ||
-					v.HLT_Ele32_WPTight_Gsf==1||v.HLT_Ele35_WPTight_Gsf==1||v.HLT_Ele38_WPTight_Gsf==1||
-					v.HLT_Ele105_CaloIdVT_GsfTrkIdT==1||v.HLT_Ele115_CaloIdVT_GsfTrkIdT==1) &&
+					v.HLT_Ele32_WPTight_Gsf==1) &&
 				(v.Electron.NonIso.n==1&&v.Muon.Veto.n==0) &&
 				(v.Jet.Jet.n>=2) &&
 				(v.R2>=0.08) &&
@@ -1264,12 +1248,7 @@ sh.AddNewPostfix("NonIsoLepMeasurements", [this]() {
 		}
 		}
 		} else if (triggers_opt.index==2) { // SingleMuon
-			if (!(v.HLT_Mu15_IsoVVVL_PFHT350==1 ||
-						v.HLT_Mu15_IsoVVVL_PFHT400==1 ||
-						v.HLT_Mu15_IsoVVVL_PFHT450==1 ||
-						v.HLT_Mu15_IsoVVVL_PFHT600==1 ||
-						v.HLT_IsoMu24==1||v.HLT_IsoTkMu24==1||v.HLT_IsoMu27==1||v.HLT_IsoTkMu27==1||
-						v.HLT_Mu50==1||v.HLT_TkMu50==1||v.HLT_Mu55==1||v.HLT_OldMu100==1||v.HLT_TkMu100==1)) return (size_t)-1;
+			if (!(v.HLT_IsoMu24==1||v.HLT_IsoTkMu24==1||v.HLT_IsoMu27==1||v.HLT_IsoTkMu27==1)) return (size_t)-1;
 			if (!(v.Muon.NonIso.n==1&&v.Electron.Veto.n==0)) return (size_t)-1;
 			if (v.Jet.Jet.n<2) return (size_t)-1;
 			if (v.R2<0.08) return (size_t)-1;
@@ -1342,7 +1321,7 @@ sh.AddNewPostfix("EleMETComb", [this]()
 		{
 		if (trigger_opt.index==0) { // SingleElectron
 		if ((v.HLT_Ele27_WPTight_Gsf==1||v.HLT_Ele30_WPTight_Gsf==1 ||
-					v.HLT_Ele32_WPTight_Gsf==1||v.HLT_Ele35_WPTight_Gsf==1||v.HLT_Ele35_WPTight_Gsf==1)&&
+					v.HLT_Ele32_WPTight_Gsf==1)&&
 				v.Electron.Select.n==1&&v.Muon.Veto.n==0&&v.Tau.Veto.n==0) return (size_t)0;
 		} else if (trigger_opt.index==1) { // MET
 		if (v.HLT_PFMET120_PFMHT120_IDTight==1&&v.nLepVeto==0&&v.Tau.Veto.n==0) return (size_t)0;
@@ -1410,11 +1389,10 @@ legname["Mll"]         = "|m_{ll} - m_{Z}| < 10 GeV";
 legname["1Top"]        = "Ntop#geq1";
 legname["1Pho"]        = "N#gamma=1";
 std::map<Region, std::string> regionname;
-regionname[Region::Pre_Lep]          = "Semi Leptonic Baseline selection";
+regionname[Region::Pre_1Lep]          = "Semi-Leptonic Baseline selection";
+regionname[Region::Pre_2Lep]          = "Di-Leptonic Baseline selection";
 regionname[Region::Pre_Had]          = "Hadronic Baseline selection";
-regionname[Region::Pre_Lep_2tau]     = "Semi Leptonic Baseline selectioni + MT";
-regionname[Region::Pre_Lep_2tau_MET] = "Semi Leptonic Baseline selectioni + MT + MET";
-regionname[Region::Pre_Had_2tau]     = "Hadronic Baseline selection w 2tau";
+regionname[Region::Pre_1Lep_MT]     = "Semi-Leptonic Baseline selection + MT";
 if (debug) std::cout<<"PlottingBase::define_histo_settings: region names ok"<<std::endl;
 
 // Cut Postfixes
@@ -2425,49 +2403,17 @@ sh.AddNewSpecialFillParams("HLTEff_Hadronic", { .nbin=    2, .bins={ -0.5,     1
 }, .axis_title="#epsilon_{MET120 OR HT*_MET* OR HT*}",     .def_range={0,1} });
 sh.AddNewSpecialFillParams("HLTEff_SingleMu", { .nbin=    2, .bins={ -0.5,     1.5}, .fill=[this] { 
 		if (v.year==2016) return
-		v.HLT_Mu15_IsoVVVL_PFHT350==1 ||
-		v.HLT_Mu15_IsoVVVL_PFHT400==1 ||
-		v.HLT_Mu15_IsoVVVL_PFHT450==1 ||
-		v.HLT_Mu15_IsoVVVL_PFHT600==1 ||
 		v.HLT_IsoMu24==1 ||
 		v.HLT_IsoTkMu24==1 ||
-		v.HLT_Mu50==1 ||
-		v.HLT_TkMu50==1 ||
-		v.HLT_Mu55==1;
 		else return
-		v.HLT_Mu15_IsoVVVL_PFHT350==1 ||
-		v.HLT_Mu15_IsoVVVL_PFHT400==1 ||
-		v.HLT_Mu15_IsoVVVL_PFHT450==1 ||
-		v.HLT_Mu15_IsoVVVL_PFHT600==1 ||
 		v.HLT_IsoMu27==1 ||
 		v.HLT_IsoTkMu27==1 ||
-		v.HLT_Mu50==1 ||
-		v.HLT_TkMu50==1||
-		v.HLT_Mu55==1 ||
-		v.HLT_OldMu100==1 ||
-		v.HLT_TkMu100==1;
 }, .axis_title="#epsilon_{Single muon}", .def_range={0,1} });
 sh.AddNewSpecialFillParams("HLTEff_SingleEle", { .nbin=    2, .bins={ -0.5,     1.5}, .fill=[this] { 
 		if (v.year==2016) return
-		v.HLT_Ele15_IsoVVVL_PFHT350==1 ||
-		v.HLT_Ele15_IsoVVVL_PFHT400==1 ||
-		v.HLT_Ele15_IsoVVVL_PFHT450==1 ||
-		v.HLT_Ele15_IsoVVVL_PFHT600==1 ||
-		v.HLT_Ele27_WPTight_Gsf==1 ||
-		v.HLT_Ele30_WPTight_Gsf==1 ||
-		v.HLT_Ele32_WPTight_Gsf==1 ||
-		v.HLT_Ele105_CaloIdVT_GsfTrkIdT==1 ||
-		v.HLT_Ele115_CaloIdVT_GsfTrkIdT==1;
+		v.HLT_Ele27_WPTight_Gsf==1;
 		else return
-		v.HLT_Ele15_IsoVVVL_PFHT350==1 ||
-		v.HLT_Ele15_IsoVVVL_PFHT400==1 ||
-		v.HLT_Ele15_IsoVVVL_PFHT450==1 ||
-		v.HLT_Ele15_IsoVVVL_PFHT600==1 ||
-		v.HLT_Ele32_WPTight_Gsf==1 ||
-		v.HLT_Ele35_WPTight_Gsf==1 ||
-		v.HLT_Ele38_WPTight_Gsf==1 ||
-		v.HLT_Ele105_CaloIdVT_GsfTrkIdT==1 ||
-		v.HLT_Ele115_CaloIdVT_GsfTrkIdT==1;
+		v.HLT_Ele32_WPTight_Gsf==1;
 }, .axis_title="#epsilon_{Single electron}", .def_range={0,1} });
 sh.AddNewSpecialFillParams("HLTEff_SinglePho", { .nbin=    2, .bins={ -0.5,     1.5}, .fill=[this] { 
 		if (v.year==2016) return v.HLT_Photon175==1;
@@ -3140,9 +3086,8 @@ Examples:
 	//standard_plots.push_back("HTFine");
 	//standard_plots.push_back("HTMET");
 
-	for (auto region : {Region::Pre_Lep, Region::Pre_Lep_2tau, Region::Pre_Lep_2tau_MET}) {
+	for (auto region : {Region::Pre_1Lep, Region::Pre_1Lep_MT, Region::Pre_2Lep}) {
 		sh.SetHistoWeights({ [&w,region] { return w.w_nm1[region][9]*w.triggereff_lep; } });
-		//sh.SetHistoWeights({ [&w,region] { return w.sf_weight[region]; } });
 		std::string cut(magic_enum::enum_name(region));
 		// Stack plots
 		std::string opt  = o_stk_d_S;
@@ -3161,7 +3106,7 @@ Examples:
 		sh.AddHistos(  "AK4",     { .fill="JetEta",                  .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk9});
 		sh.AddHistos(  "AK4",     { .fill="JetPhi",                  .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk9});
 	}
-	for (auto region : {Region::Pre_Had, Region::Pre_Had_2tau}) {
+	for (auto region : {Region::Pre_Had}) {
 		sh.SetHistoWeights({ [&w,region] { return w.sf_weight[region]; } });
 		std::string cut(magic_enum::enum_name(region));
 		// Stack plots
