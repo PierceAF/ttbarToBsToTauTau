@@ -5,7 +5,7 @@
 - ```cd CMSSW_10_2_16_UL/src```
 - ```cmsenv```
 - ```git clone git@github.com:cghuh/ttbarToBsToTauTau.git```
-- ```python condor/setup.py```
+- ```python3 condor/setup.py```
 
 
 After running the setup.py, the filelists are automatically generated using condor/filelist_2018.txt
