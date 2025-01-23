@@ -688,24 +688,36 @@ def special_call(cmd, run=1, verbose=1):
 # Run command with stdout/stderr saved to logfile
 def logged_call(cmd, logfile, run=1):
     dirname = os.path.dirname(logfile)
-    if dirname != "" and not os.path.exists(dirname):
-        special_call(["mkdir", "-p", os.path.dirname(logfile)], run, 0)
+    
+    # Ensure directory exists
+    if dirname and not os.path.exists(dirname):
+        os.makedirs(dirname, exist_ok=True)
+    
     if run:
         ntry = 0
         while True:
             try:
+                # Check free disk space (optional)
+                statvfs = os.statvfs(dirname)
+                free_space = statvfs.f_frsize * statvfs.f_bavail
+                if free_space < 1024 * 1024:  # Less than 1MB
+                    print("Not enough disk space, exiting.")
+                    sys.exit(1)
+                
                 with open(logfile, "a") as log:
-                    proc = subprocess.Popen(cmd, stdout=log, stderr=log, close_fds=True)
+                    proc = subprocess.Popen(cmd, stdout=log, stderr=log)
                     proc.wait()
-            except:
-                print("Could not write to disk (IOError), wait 10s and continue")
+            except IOError as e:
+                print(f"IOError: {e}. Retrying in 10 seconds...")
                 time.sleep(10)
                 ntry += 1
-                if ntry == 20: sys.exit()
+                if ntry >= 20:
+                    print("Too many retries, exiting.")
+                    sys.exit(1)
                 continue
             break
     else:
-        proc = subprocess.call(["echo", "[dry]"]+cmd+[">", logfile])
+        subprocess.call(["echo", "[dry]"] + cmd + [">", logfile])
 
 def add_cms_era(plot, approval, keep, twoframe=False):
     ROOT.gPad.Update() # Forces to create frames

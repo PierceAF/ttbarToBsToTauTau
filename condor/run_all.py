@@ -159,7 +159,6 @@ elif opt.test:
     input_filelists  = sorted(glob.glob("filelists/2017/data/JetHT*.txt"))
     input_filelists += sorted(glob.glob("filelists/2017/backgrounds/QCD_HT*.txt"))
     input_filelists += sorted(glob.glob("filelists/2017/backgrounds/TT_powheg-pythia8_ext4*.txt"))
-    input_filelists += sorted(glob.glob("filelists/2017/signals/FastSim_SMS-T5ttcc*.txt"))
 elif not opt.replot:
     print("Always tell me what filelists to run over (except when using --full or --test options)!")
     print(("For more help, run as python %s -h" % (sys.argv[0])))
@@ -344,26 +343,6 @@ for filelist in input_filelists:
                     print("ERROR: File not found in condor/filelist_and_counts.txt")
                     print((files[i]))
                     sys.exit()
-                # OLD method: Create a new list after every nevtperjob_sample
-                #if i==0 or (curr_nevt + nevt > nevtperjob_sample):
-                #    jobnum += 1
-                #    tmp_filelist = filelist.replace("filelists","filelists_tmp").replace(".txt","_"+str(jobnum)+".txt")
-                #    job_args = [output_file.replace(".root","_"+str(jobnum)+".root"), [EXEC_PATH+"/"+tmp_filelist], options, log_file.replace(".log","_"+str(jobnum)+".log")]
-                #    ana_arguments.append(job_args)
-                #    curr_nevt = 0
-                #curr_nevt += nevt
-                #ntry = 0
-                #while True:
-                #    try:
-                #        with open(tmp_filelist, "a") as job_filelist:
-                #            print>>job_filelist, files[i]
-                #    except:
-                #        print("Warning: Could not write to disk (IOError), wait 10s and continue"
-                #        time.sleep(10)
-                #        ntry += 1
-                #        if ntry == 20: sys.exit()
-                #        continue
-                #    break
                 
                 # New method, split jobs by exactly configurable event number (ignore input file boundaries)
                 if not "/data/" in filelist:
@@ -876,12 +855,6 @@ def analysis(ana_arguments, last_known_status, last_condor_jobid, nproc):
             if opt.condor and len(cluster_ids) > 0:
                 latest_condor_query = {}
                 latest_batch_status = TMPDIR + 'batchstatus_' + cluster_ids[-1] + '.txt'
-              #  logged_call(shlex.split(
-              #      'condor_q --nobatch '+(" ".join(cluster_ids))+
-              #      ' -format "%s " GlobalJobId'+
-              #      ' -format "%s " JobStatus'+
-              #      ' -format "%d " JobCurrentStartExecutingDate'+
-              #      ' -format "%d\n" CompletionDate'), latest_batch_status, opt.run)
                 condor_command = [
                     'condor_q', '--nobatch', *cluster_ids,  # Expands the cluster_ids list directly
                     '-format', '"%s "', 'GlobalJobId',
@@ -1316,7 +1289,7 @@ else:
     if not opt.recover or opt.update:
         if not opt.test:
             backup_files(EXEC_PATH, SUBTIME, opt.update)
-        compile(1, opt.plot)
+        #compile(1, opt.plot)
         if opt.condor: create_sandbox(EXEC_PATH, opt.update)
     plotter_input_files = analysis(ana_arguments, last_known_status, last_condor_jobid, opt.NPROC)
     if opt.plot:
