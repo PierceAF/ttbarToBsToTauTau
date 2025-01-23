@@ -88,9 +88,9 @@ def draw_mr_bins(vh, ymin, ymax, combine_bins, keep,
                  r2bins  = [ 0.08, 0.12, 0.16, 0.24, 0.4, 1.5  ],
                  xoffset = 0, yoffset=0, textsize=0.04):
     for i in range(len(mrbins)-1):
-        bins = range(i*5+1, i*5+6)
-        if combine_bins and i==3: bins = range(16,20)
-        if combine_bins and i==4: bins = range(20,23)
+        bins = list(range(i*5+1, i*5+6))
+        if combine_bins and i==3: bins = list(range(16,20))
+        if combine_bins and i==4: bins = list(range(20,23))
         maxcont = -9999
         for binx in bins:
             for h in vh:
@@ -160,19 +160,19 @@ def add_stack_ratio_plot(c, xmin, xmax, keep, add_labels=True, combine_bins=True
     titlefontsize = 32.
     leg_y2 = 0.9 # not used values, read from orig
     ok = False
-    if debug: print "Start debugging: "+c.GetName()
-    if debug: print "ok"
+    if debug: print(("Start debugging: "+c.GetName()))
+    if debug: print("ok")
     if (c.GetListOfPrimitives().GetEntries()>2):
         # Histos
-        if debug: print "ok1"
+        if debug: print("ok1")
         Data = c.GetListOfPrimitives().At(1)
-        if debug: print "ok1"
+        if debug: print("ok1")
         MCstack = c.GetListOfPrimitives().At(2)
-        if debug: print "ok1"
+        if debug: print("ok1")
         syst_err = c.GetListOfPrimitives().At(3)
-        if debug: print "ok1"
+        if debug: print("ok1")
         stat_err = c.GetListOfPrimitives().At(4)
-        if debug: print "ok1"
+        if debug: print("ok1")
         for i in range(c.GetListOfPrimitives().GetEntries()):
             prim = c.GetListOfPrimitives().At(i)
             if prim.GetTitle().startswith("Legend"):
@@ -184,28 +184,28 @@ def add_stack_ratio_plot(c, xmin, xmax, keep, add_labels=True, combine_bins=True
             vh_signals.append(c.GetListOfPrimitives().At(6))
             vh_signals.append(c.GetListOfPrimitives().At(7))
             vh_signals.append(c.GetListOfPrimitives().At(8))
-        if debug: print "ok1"
+        if debug: print("ok1")
         if not MCstack.GetTitle()=="0":
             ratio = Data.Clone(Data.GetName()+"_num")
             keep.append(ratio)
-            if debug: print "ok2"
+            if debug: print("ok2")
             mc_sum = MCstack.GetHists().At(0).Clone(Data.GetName()+"_den")
             keep.append(mc_sum)
             mc_sum_syst = 0
-            if debug: print "ok2"
+            if debug: print("ok2")
             for iStack in range(1, MCstack.GetHists().GetEntries()):
                 h = MCstack.GetHists().At(iStack)
                 mc_sum.Add(h.Clone())
-            if debug: print "ok2"
+            if debug: print("ok2")
             den_stat_err     = mc_sum.Clone("den_stat_err")
             keep.append(den_stat_err)
-            if debug: print "ok2"
+            if debug: print("ok2")
             den_total_err = syst_err.Clone("den_total_err")
             keep.append(den_total_err)
-            if debug: print "ok2"
+            if debug: print("ok2")
             # Instead of Divide(), scale the error of num, and plot error of den around 1
             ratio.Divide(mc_sum)
-            if debug: print "ok2"
+            if debug: print("ok2")
             for bin in range(1, ratio.GetNbinsX()+1):
                 if (mc_sum.GetBinContent(bin)!=0):
                     ratio  .SetBinContent(bin, Data.GetBinContent(bin)/mc_sum.GetBinContent(bin))
@@ -225,12 +225,12 @@ def add_stack_ratio_plot(c, xmin, xmax, keep, add_labels=True, combine_bins=True
                     den_stat_err.SetBinError  (bin, 0)
                     den_total_err.SetBinContent(bin, 1)
                     den_total_err.SetBinError  (bin, 0)
-            if debug: print "ok2"
+            if debug: print("ok2")
             # Legend
             # Remove Non-Data non-stack plots (eg. signal)
             # indices:
             # 0: Data, 1: stack, 2: Data again, 3+: (signals), 3+nsig: Legend
-            if debug: print "ok2"
+            if debug: print("ok2")
             # Styles
             heightratio1 = float(padsize1)/y_can
             Data .SetTitleSize  (Data.GetYaxis().GetTitleSize()  /heightratio1,"y")
@@ -242,7 +242,7 @@ def add_stack_ratio_plot(c, xmin, xmax, keep, add_labels=True, combine_bins=True
             ratio.GetYaxis().SetRangeUser(0,max_range)
             ratio.GetYaxis().SetNdivisions(501+max_range)
             #ratio.GetYaxis().SetTitle("#frac{Data}{Estimate}")
-            if debug: print "ok2"
+            if debug: print("ok2")
             heightratio2 = float(padsize2)/y_can
             #ratio.SetTitleOffset(ratio.GetYaxis().GetTitleOffset()*heightratio2,"y")
             if incl_style:
@@ -256,7 +256,7 @@ def add_stack_ratio_plot(c, xmin, xmax, keep, add_labels=True, combine_bins=True
             ratio.SetMarkerStyle(20)
             ratio.SetMarkerColor(1)
             ratio.SetLineColor(1)
-            if debug: print "ok2"
+            if debug: print("ok2")
             # New Canvas
             left_mar = float(mar_left)/padsize1
             right_mar = float(mar_right)/padsize1
@@ -266,12 +266,12 @@ def add_stack_ratio_plot(c, xmin, xmax, keep, add_labels=True, combine_bins=True
             c = ROOT.TCanvas(c.GetName()+"_Ratio", c.GetTitle(), int(x_can+4), int(y_can+26)) # 600, 600
             keep.append(c)
             c.Divide(1,2)
-            if debug: print "ok2"
+            if debug: print("ok2")
             # Pad 1 (x: 90+500+20 x y: 45+350+10)
             p = c.cd(1)
             p.SetGrid(c.GetGridx(),c.GetGridy())
             p.SetPad(0,float(padsize2)/y_can,1,1)
-            if debug: print "ok2"
+            if debug: print("ok2")
             p.SetTopMargin(mar_top/(mar_top+y1+mid2))
             if incl_style:
                 p.SetBottomMargin(float(mar_bottom)/padsize1)
@@ -280,7 +280,7 @@ def add_stack_ratio_plot(c, xmin, xmax, keep, add_labels=True, combine_bins=True
                 p.SetBottomMargin(0)
             p.SetLeftMargin(left_mar)
             p.SetRightMargin(right_mar)
-            if debug: print "ok2"
+            if debug: print("ok2")
             if (logScale): p.SetLogy(1)
             Data.Draw("PE0")
             MCstack.Draw("SAME HIST")
@@ -294,13 +294,13 @@ def add_stack_ratio_plot(c, xmin, xmax, keep, add_labels=True, combine_bins=True
                 leg.SetY1NDC(leg.GetY1NDC()+0.06)
                 leg.SetY2NDC(leg.GetY2NDC()+0.03)
             leg.Draw("SAME")
-            if debug: print "ok2"
+            if debug: print("ok2")
             Data.Draw("SAMEPE0")
-            if debug: print "ok3"            
+            if debug: print("ok3")            
             # Draw also Garwood intervals for 0 counts [0,1.83]
             zero = Data.Clone(Data.GetName()+"_zeroes")
             keep.append(zero)
-            if debug: print "ok3"
+            if debug: print("ok3")
             if (xmin==xmax):
                 xmin = Data.GetXaxis().GetXmin()
                 xmax = Data.GetXaxis().GetXmax()
@@ -316,7 +316,7 @@ def add_stack_ratio_plot(c, xmin, xmax, keep, add_labels=True, combine_bins=True
                     if ymin_zero>0: zero.SetBinContent(binx, ymin_zero*1.000001)
                     zero.SetBinError(binx, 1.83-ymin_zero*1.000001)
             zero.Draw("SAME PE")
-            if debug: print "ok3"
+            if debug: print("ok3")
             if incl_style:                
                 if add_labels: add_r2_labels(Data, combine_bins, keep, mrbins, r2bins, "")
                 if logScale:
@@ -325,13 +325,13 @@ def add_stack_ratio_plot(c, xmin, xmax, keep, add_labels=True, combine_bins=True
                     xtit = ROOT.TLatex(xmax + (xmax-xmin)*0.01, ymin-(ymax-ymin)*0.17, "R^{2}")
                 keep.append(xtit)
                 xtit.Draw("SAME")
-            if debug: print "ok3"
+            if debug: print("ok3")
             draw_mr_bins([Data, MCstack], Data.GetMinimum(),Data.GetMaximum(), combine_bins, keep, mrbins)
-            if debug: print "ok3"
+            if debug: print("ok3")
             ROOT.gPad.Update()
-            if debug: print "ok3"
+            if debug: print("ok3")
             ROOT.gPad.RedrawAxis()
-            if debug: print "ok3"
+            if debug: print("ok3")
             # Pad 2 (x: 90+500+20 x y: 60+150+10)
             p2 = c.cd(2)
             p2.SetPad(0,0,1,float(padsize2)/y_can)
@@ -346,7 +346,7 @@ def add_stack_ratio_plot(c, xmin, xmax, keep, add_labels=True, combine_bins=True
                 p2.SetBottomMargin(float(mar_bottom)/padsize2)
             p2.SetLeftMargin(left_mar)
             p2.SetRightMargin(right_mar)
-            if debug: print "ok3"
+            if debug: print("ok3")
             den_stat_err.SetFillColor(1)
             den_stat_err.SetFillStyle(3004)
             den_stat_err.SetMarkerStyle(0)
@@ -361,14 +361,14 @@ def add_stack_ratio_plot(c, xmin, xmax, keep, add_labels=True, combine_bins=True
             den_total_err.Draw("SAME E2")
             #den_stat_err.Draw("SAME E2")
             ratio.Draw("SAME PE0")
-            if debug: print "ok3"
+            if debug: print("ok3")
             l = ROOT.TLine(xmin, 1, xmax, 1)
             l.SetLineWidth(2)
             #l.SetLineColor(2)
             l.SetLineStyle(2)
             l.Draw()
             keep.append(l)
-            if debug: print "ok3"
+            if debug: print("ok3")
             # Add legend to indicate stat/total error
             if incl_style:
                 leg2 = ROOT.TLegend(0.2, 0.80, 0.40, 0.97, "")
@@ -383,11 +383,11 @@ def add_stack_ratio_plot(c, xmin, xmax, keep, add_labels=True, combine_bins=True
             leg2.Draw("SAME");
             keep.append(leg2)
             ROOT.gPad.Update()
-            if debug: print "ok3"
+            if debug: print("ok3")
             ROOT.gPad.RedrawAxis()
             if add_labels and not incl_style: add_r2_labels(ratio, combine_bins, keep, mrbins, r2bins)
             #c.Write()
-            if debug: print "ok3"
+            if debug: print("ok3")
             ok = 1
     return c
 
@@ -412,32 +412,32 @@ def add_ratio_plot(c, xmin, xmax, keep, add_labels=True, combine_bins=True,
     titlefontsize = 32.
     leg_y2 = 0.9 # not used values, read from orig
     ok = False
-    if debug: print "Start debugging: "+c.GetName()
-    if debug: print "ok"
+    if debug: print("Start debugging: "+c.GetName())
+    if debug: print("ok")
     # Histos
-    if debug: print "ok1"
+    if debug: print("ok1")
     num = c.GetListOfPrimitives().At(0)
-    if debug: print "ok1"
+    if debug: print("ok1")
     den = c.GetListOfPrimitives().At(1)
-    if debug: print "ok1"
+    if debug: print("ok1")
     den2 = c.GetListOfPrimitives().At(2)
-    if debug: print "ok1"
+    if debug: print("ok1")
     for i in range(c.GetListOfPrimitives().GetEntries()):
         prim = c.GetListOfPrimitives().At(i)
         if prim.GetTitle().startswith("Legend"):
             leg = prim
             break
     keep.append(leg)
-    if debug: print "ok1"
+    if debug: print("ok1")
     ratio = num.Clone(num.GetName()+"_ratio")
     keep.append(ratio)
-    if debug: print "ok2"
+    if debug: print("ok2")
     #den_stat_err     = den.Clone("den_stat_err")
     #keep.append(den_stat_err)
     #if debug: print "ok2"
     # Instead of Divide(), scale the error of num, and plot error of den around 1
     #ratio.Divide(den)
-    if debug: print "ok2"
+    if debug: print("ok2")
     ratiomax = 0
     for binx in range(1, ratio.GetNbinsX()+1):
         if (den.GetBinContent(binx)!=0):
@@ -452,11 +452,11 @@ def add_ratio_plot(c, xmin, xmax, keep, add_labels=True, combine_bins=True,
             ratio  .SetBinError  (binx, 0)
             #den_stat_err.SetBinContent(binx, 0)
             #den_stat_err.SetBinError  (binx, 0)
-    if debug: print "ok2"
+    if debug: print("ok2")
     # Legend
     # indices:
     # 0: num, 1: mc, 2: Legend
-    if debug: print "ok2"
+    if debug: print("ok2")
     # Styles
     heightratio1 = float(padsize1)/y_can
     num .SetTitleSize  (num.GetYaxis().GetTitleSize()  /heightratio1,"y")
@@ -471,7 +471,7 @@ def add_ratio_plot(c, xmin, xmax, keep, add_labels=True, combine_bins=True,
         ratio.GetYaxis().SetRangeUser(0,(int(ratiomax/yratio)+1)*yratio)
     ratio.GetYaxis().SetNdivisions(305)
     ratio.GetYaxis().SetTitle("Ratio")
-    if debug: print "ok2"
+    if debug: print("ok2")
     heightratio2 = float(padsize2)/y_can
     #ratio.SetTitleOffset(ratio.GetYaxis().GetTitleOffset()*heightratio2,"y")
     ratio.GetYaxis().SetTitleOffset(0.5)
@@ -479,7 +479,7 @@ def add_ratio_plot(c, xmin, xmax, keep, add_labels=True, combine_bins=True,
     ratio.SetMarkerStyle(20)
     ratio.SetMarkerColor(1)
     ratio.SetLineColor(1)
-    if debug: print "ok2"
+    if debug: print("ok2")
     # New Canvas
     left_mar = c.GetLeftMargin()
     right_mar = c.GetRightMargin()
@@ -488,16 +488,16 @@ def add_ratio_plot(c, xmin, xmax, keep, add_labels=True, combine_bins=True,
     can2.SetGrid(c.GetGridx(),c.GetGridy())
     keep.append(can2)
     can2.Divide(1,2)
-    if debug: print "ok2"
+    if debug: print("ok2")
     # Pad 1 (x: 90+500+20 x y: 45+350+10)
     p = can2.cd(1)
     p.SetPad(0,float(padsize2)/y_can,1,1)
-    if debug: print "ok2"
+    if debug: print("ok2")
     p.SetTopMargin(mar_top/(mar_top+y1+mid2))
     p.SetBottomMargin(0)
     p.SetLeftMargin(left_mar)
     p.SetRightMargin(right_mar)
-    if debug: print "ok2"
+    if debug: print("ok2")
     if (logScale): p.SetLogy(1)
     num.Draw("PE0")
     den.Draw("SAME HIST")
@@ -506,9 +506,9 @@ def add_ratio_plot(c, xmin, xmax, keep, add_labels=True, combine_bins=True,
     #if debug: print "ok2"
     #num.Draw("SAME PE0")
     draw_mr_bins([num], num.GetMinimum(),num.GetMaximum(), combine_bins, keep, mrbins)
-    if debug: print "ok3"
+    if debug: print("ok3")
     ROOT.gPad.Update()
-    if debug: print "ok3"
+    if debug: print("ok3")
     # Pad 2 (x: 90+500+20 x y: 60+150+10)
     p2 = can2.cd(2)
     p2.SetPad(0,0,1,float(padsize2)/y_can)
@@ -518,18 +518,18 @@ def add_ratio_plot(c, xmin, xmax, keep, add_labels=True, combine_bins=True,
     p2.SetBottomMargin(float(mar_bottom)/padsize2)
     p2.SetLeftMargin(left_mar)
     p2.SetRightMargin(right_mar)
-    if debug: print "ok3"
+    if debug: print("ok3")
     ratio.Draw("P")
     #den_stat_err.SetFillColor(1)
     #den_stat_err.SetFillStyle(3004)
     #den_stat_err.SetMarkerStyle(0)
     #den_stat_err.Draw("SAME E2")
     #ratio.Draw("SAME PE0")
-    if debug: print "ok3"
+    if debug: print("ok3")
     if (xmin==xmax):
         xmin = ratio.GetYaxis().GetXmin()
         xmax = ratio.GetYaxis().GetXmax()
-    if debug: print "ok3"
+    if debug: print("ok3")
     l = ROOT.TLine(xmin, yratio, xmax, yratio)
     l.SetLineWidth(2)
     #l.SetLineColor(2)
@@ -538,7 +538,7 @@ def add_ratio_plot(c, xmin, xmax, keep, add_labels=True, combine_bins=True,
     ROOT.gPad.Update()
     if add_labels: add_r2_labels(ratio, combine_bins, keep, mrbins, r2bins)
     #can2.Write()
-    if debug: print "ok3"
+    if debug: print("ok3")
     ok = 1
     return can2
 
@@ -654,34 +654,34 @@ def special_call(cmd, run=1, verbose=1):
     global icommand
     if verbose:
         if run:
-            print("[%d]" % icommand),
+            print(("[%d]" % icommand), end=' ')
         else:
-            print("[dry]"),
-        for i in xrange(len(cmd)): print cmd[i],
-        print ""
+            print(("[dry]"), end=' ')
+        for i in range(len(cmd)): print(cmd[i], end=' ')
+        print("")
     if run:
         ntry = 0
         while True:
             try:
                 if subprocess.call(cmd):
-                    print "ERROR: Problem executing command:"
-                    print("[%d]" % icommand)
-                    for i in xrange(len(cmd)): print cmd[i],
-                    print ""
-                    print "exiting."
+                    print("ERROR: Problem executing command:")
+                    print(("[%d]" % icommand))
+                    for i in range(len(cmd)): print(cmd[i], end=' ')
+                    print("")
+                    print("exiting.")
                     sys.exit()
             except:
-                print "Could not excecute command: "
-                print("[%d]" % icommand)
-                for i in xrange(len(cmd)): print cmd[i],
-                print ""
-                print "Wait 10s and continue"
+                print("Could not excecute command: ")
+                print(("[%d]" % icommand))
+                for i in range(len(cmd)): print(cmd[i], end=' ')
+                print("")
+                print("Wait 10s and continue")
                 time.sleep(10)
                 ntry += 1
                 if ntry == 20: sys.exit()
                 continue
             break
-        if verbose: print ""
+        if verbose: print("")
     sys.stdout.flush()
     icommand+=1
 
@@ -698,7 +698,7 @@ def logged_call(cmd, logfile, run=1):
                     proc = subprocess.Popen(cmd, stdout=log, stderr=log, close_fds=True)
                     proc.wait()
             except:
-                print "Could not write to disk (IOError), wait 10s and continue"
+                print("Could not write to disk (IOError), wait 10s and continue")
                 time.sleep(10)
                 ntry += 1
                 if ntry == 20: sys.exit()

@@ -32,12 +32,12 @@ public:
   void define_event_selections();
 
   enum Regions : size_t {
-    // Preection regions
     Pre_1Lep,
     Pre_Had,
     Pre_2Lep,
 		Pre_1Lep_MT,
-      };
+    
+    };
   typedef Regions Region;
 
   void define_region(Region, Region, std::vector<Cut>);
@@ -227,18 +227,16 @@ EventSelections::define_preselections()
   // HEM 15/16 failure
   if (v.year==2018) {
     baseline_cuts.push_back({ .name="Clean_HEM_failure", .func = [this] {
-                                if (v.isData ? v.run>=319077 : rnd_.Rndm()<0.645) {
+                                if (v.run>=319077) {
 																	while (v.Jet.Loop()){
-                                  	if (v.Jet().pt  >= 30 &&
-                                      //v.Jet().eta > -4.7 && v.Jet().eta < -1.4 &&
-                                      //v.Jet().phi > -1.6 && v.Jet().phi < -0.8)
-                                      v.Jet().eta > -3.2 && v.Jet().eta < -1.2 &&
-                                      v.Jet().phi > -1.77 && v.Jet().phi < -0.67)
+                                  	if (v.Jet().pt  > 15 && v.Jet().jetId == 6 &&
+                                      v.Jet().eta > -3.2 && v.Jet().eta < -1.3 &&
+                                      v.Jet().phi > -1.57 && v.Jet().phi < -0.87)
                                     return 0;
 																	}
 																	while (v.Electron.Loop()){
                                   	if (v.Electron().pt  >= 30 &&
-                                      v.Electron().eta > -3.0 && v.Electron().eta < -1.4 &&
+                                      v.Electron().eta > -3.2 && v.Electron().eta < -1.3 &&
                                       v.Electron().phi > -1.57 && v.Electron().phi < -0.87)
                                     return 0;
 																	}
@@ -341,34 +339,16 @@ EventSelections::define_event_selections()
       
     };
   } else {
-    // Data histos should not contain events from other datasets
     hadronic_triggers = [this] { return !v.isData; };
-		//Use trigger selection to Data
-/*
-    hadronic_triggers = [this] { 
-      if (v.year==2016) return 
-        (v.HLT_PFHT300_PFMET110==1|| // veto HTMHT
-          v.HLT_PFMET110_PFMHT110_IDTight==1||v.HLT_PFMETNoMu110_PFMHTNoMu110_IDTight==1) ||
-        (v.HLT_AK8PFJet450==1||v.HLT_PFHT800==1||v.HLT_PFHT900==1);
-      else return (v.HLT_PFMET120_PFMHT120_IDTight==1 || // veto MET
-                    v.HLT_PFMET120_PFMHT120_IDTight_PFHT60==1 ||
-                    v.HLT_PFMETNoMu120_PFMHTNoMu120_IDTight==1 ||
-                    v.HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60==1 ||
-                    v.HLT_PFHT500_PFMET100_PFMHT100_IDTight==1 || 
-                    v.HLT_PFHT700_PFMET85_PFMHT85_IDTight==1 ||
-                    v.HLT_PFHT800_PFMET75_PFMHT75_IDTight==1) ||
-        v.HLT_PFHT1050==1;
-    };
-*/
   }
 
   std::function<bool()> leptonic_triggers;
   if (v.sample.Contains("SingleElectron")||v.sample.Contains("EGamma")) {
     leptonic_triggers = [this] {
       if (v.year==2016) return
-        v.HLT_Ele27_WPTight_Gsf==1 ||
+        v.HLT_Ele27_WPTight_Gsf==1;
       else return
-        v.HLT_Ele32_WPTight_Gsf==1 ||
+        v.HLT_Ele32_WPTight_Gsf==1;
     };
   } else if (v.sample.Contains("SingleMuon")) {
     leptonic_triggers = [this] {
@@ -376,32 +356,18 @@ EventSelections::define_event_selections()
       if (v.year==2016) {
         return
         v.HLT_IsoMu24==1 ||
-        v.HLT_IsoTkMu24==1 ||
+        v.HLT_IsoTkMu24==1;
       } else {
         return
         v.HLT_IsoMu27==1 ||
-        v.HLT_IsoTkMu27==1 ||
+        v.HLT_IsoTkMu27==1;
       }
     };
   } else {
     // Data histos should not contain events from other datasets
     leptonic_triggers = [this] { return !v.isData; };
   }
-
-  std::function<bool()> photonic_triggers;
-  if (v.sample.Contains("SinglePhoton")||v.sample.Contains("EGamma")) {
-    photonic_triggers = [this] {
-      if (v.year==2016) return v.HLT_Photon175==1;
-      else return v.HLT_Photon200==1;
-    };
-  } else {
-    // Data histos should not contain events from other datasets
-    photonic_triggers = [this] { return !v.isData; };
-  }
   
-  v.get_signal_mass();
-
-  // Preselection leptonic regions
   analysis_cuts[Region::Pre_1Lep] = {
     { .name="NJetPre",    .func = [this] { return v.Jet.Jet.n>=4;              }},
     { .name="1Lep",       .func = [this] { return v.nLepSelect==1;             }},

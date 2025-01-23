@@ -1,5 +1,6 @@
 ## Installation
-- This analysis framework requires only ROOT (you don't need to set up CMSSW but need to check ROOT version dependency)
+- This analysis framework requires only ROOT, gcc (you don't need to set up CMSSW but need to check ROOT version dependency), You need singularity if you're system's OS is Alma9
+- ```cmssw-el7```
 - ```cmsrel CMSSW_10_2_16_UL```
 - ```cd CMSSW_10_2_16_UL/src```
 - ```cmsenv```
@@ -16,11 +17,8 @@ After running the setup.py, the filelists are automatically generated using cond
 - additional option: ```ilast=NEVENT```, ```debug=True``` (default is False)
 
 
-### Run using condor (Basically performed with CMS connect)
-- ```python condor/run_all.py --full --plot --batch --condor --run --outdir=results/run_2024_03_27 --optim --nevt=300000```
-- It create histogram ROOT file ```results/run_2024_03_27.root```
-- From histogram ROOT file, plotting results are stored in ```results/Plotter_out_2024_03_27.root```
-- Suggest to run on ```screen```
+### Run using condor (Please run outside of singularity)
+- ```python3 condor/run_all.py --full --nohadd --batch --condor --run --outdir=results/run_2024_11_28_syst --optim --nevt=1000000```
 
 
 ## Explanation of code

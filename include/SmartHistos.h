@@ -3842,7 +3842,8 @@ public:
   
   void Fill(std::string name) {
     cuts_->ResetAllCut();
-    for (const auto& sh: sh_[name]) sh->Fill(); 
+    //for (const auto& sh: sh_[name]) sh->Fill(); 
+		if (sh_.find(name) != sh_.end()) { for (const auto& sh : sh_[name]) { if (sh) sh->Fill(); } }
   }
   
   void DrawPlots(bool time=1) {

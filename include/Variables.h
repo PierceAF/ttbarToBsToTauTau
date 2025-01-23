@@ -3,14 +3,13 @@
 
 // Private headers
 #include "eventBuffer.h" // make sure to set to same as in tnm.h
-#include "Razor.h"
-#include "MT2.h"
 #include "XYMETCorrection.h"
 
 // 3rd party headers
 #include "tnm.h"
 //#include "TLorentzVector.h" // should be replaced to ROOT::Math::LorentzVector
 #include "Math/LorentzVector.h"
+#include "Razor.h"
 #include "TRandom3.h" // For selecting which lepton to add to MET in DiLep CR
 #include "TString.h"
 
@@ -21,7 +20,6 @@
 
 #define NOVAL_F 9999.0
 #define NOVAL_I 9999
-
 //_______________________________________________________
 //                 Object selections
 
@@ -298,6 +296,13 @@ public:
   double minDeltaPhi_1l;
   double minDeltaPhi_2l;
   double minDeltaPhi_pho;
+  double dPhiRazor;
+  double dPhiRazorNoPho;
+  double dPhiRazor_new;
+  double dPhiBoostedJetMET;
+  double dPhiBoostedJetLep;
+  double dPhiBoostedJetLepMET;
+  double dPhiMuonJetMET;
 
   // Other
   std::vector<LorentzVector> megajets;
@@ -340,6 +345,13 @@ public:
     minDeltaPhi_1vl = NOVAL_F;
     minDeltaPhi_2l  = NOVAL_F;
     minDeltaPhi_pho = NOVAL_F;
+    dPhiRazor            = NOVAL_F;
+    dPhiRazorNoPho       = NOVAL_F;
+    dPhiRazor_new        = NOVAL_F;
+    dPhiBoostedJetMET    = NOVAL_F;
+    dPhiBoostedJetLep    = NOVAL_F;
+    dPhiBoostedJetLepMET = NOVAL_F;
+    dPhiMuonJetMET       = -NOVAL_F;
 
     megajets.clear();
     megajets_nophoton.clear();
@@ -366,13 +378,11 @@ public:
     Tau(d),
     Photon(d),
     Jet(d),
+		TrigObj(d),
     GenJet(d),
-    SubJet(d),
-    FatJet(d),
     GenPart(d)
   { 
     resetEventData(); 
-    isFastSim = sample.Contains("SMS");
     isQCD = sample.Contains("QCD_HT") || sample.Contains("QQ_HT-");
     isGJets = sample.BeginsWith("GJets");
     isWJets = sample.Contains("WJetsToLNu");
@@ -388,7 +398,6 @@ public:
   const bool isSignal;
   const bool isBackground;
   const TString sample;
-  bool isFastSim;
   bool isQCD;
   bool isGJets;
   bool isWJets;
@@ -750,6 +759,7 @@ public:
     Muon_c Veto      {this};
     Muon_c VetoNoIso {this};
     Muon_c Select    {this};
+    Muon_c Matching  {this};
     Muon_c Tight     {this};
     Muon_c NoIso     {this};
     Muon_c NonIso    {this};
@@ -787,11 +797,11 @@ public:
     ~TauSelection() {};
     typedef Object<eventBuffer::Tau_s, TauData> Tau_c;
     
-    Tau_c Veto{this};
+    Tau_c Select{this};
     
     void initObjects() {
       moveData();
-      Veto     .reset();
+      Select     .reset();
     }
   } Tau;
 
@@ -893,6 +903,30 @@ public:
   } Jet;
 
   //_______________________________________________________
+  //                    TrigObj
+
+  struct TrigObjData : eventBuffer::TrigObj_s {
+    TrigObjData(eventBuffer::TrigObj_s&& arg) : 
+      eventBuffer::TrigObj_s(std::move(arg)) {}
+  
+  };
+
+  class TrigObjSelection : public ObjectVectorContainer
+  <eventBuffer::TrigObj_s, TrigObjData> {
+    
+  public:
+    TrigObjSelection(eventBuffer& d) :
+      ObjectVectorContainer<eventBuffer::TrigObj_s, TrigObjData>
+    (d.TrigObj, d.TrigObj_pt.size()) { init(); };
+    ~TrigObjSelection() {};
+    typedef Object<eventBuffer::TrigObj_s, TrigObjData> TrigObj_c;
+    
+    void initObjects() {
+      moveData();
+    }
+  } TrigObj;
+
+  //_______________________________________________________
   //                     GenJets 
 
   struct GenJetData : eventBuffer::GenJet_s {
@@ -916,236 +950,6 @@ public:
     }
   } GenJet;
 
-  //_______________________________________________________
-  //                  FatJets and SubJets
-
-  struct SubJetData : eventBuffer::SubJet_s {
-    SubJetData(eventBuffer::SubJet_s&& arg) : 
-      eventBuffer::SubJet_s(std::move(arg)) {}
-    // GenTruth
-  };
-
-  class SubJetSelection : public ObjectVectorContainer
-  <eventBuffer::SubJet_s, SubJetData> {
-    
-  public:
-    SubJetSelection(eventBuffer& d) :
-      ObjectVectorContainer<eventBuffer::SubJet_s, SubJetData>
-    (d.SubJet, d.SubJet_pt.size()) { init(); };
-    ~SubJetSelection() {};
-    typedef Object<eventBuffer::SubJet_s, SubJetData> SubJet_c;
-    
-    void initObjects() {
-      moveData();
-    }
-  } SubJet;
-
-  struct FatJetData : eventBuffer::FatJet_s {
-    FatJetData(eventBuffer::FatJet_s&& arg) : 
-      eventBuffer::FatJet_s(std::move(arg)) {}
-  
-    bool   passSubJetBTag =  0;
-    size_t nSubJet        =  0;
-    size_t nSubJetBTag    =  0;
-    double maxSubJetDeepB = -NOVAL_F;
-    double tau21          =  NOVAL_F;
-    double tau31          =  NOVAL_F;
-    double tau32          =  NOVAL_F;
-    double eleDR          =  NOVAL_F;
-    double elePtRatio     =  0;
-    double muDR           =  NOVAL_F;
-    double muPtRatio      =  0;
-    double phoDR          =  NOVAL_F;
-    double phoPtRatio     =  0;
-    bool   matchLepNoIso  =  0;
-    bool   matchLepNonIso =  0;
-    double lepNonIsoNuDR  =  NOVAL_F;
-    double LSF            = -NOVAL_F;
-    double LSF_NoIso      = -NOVAL_F;
-    double matchedNoIsoLepJetDRmin      = -NOVAL_F;
-    double matchedNoIsoLepCleanJetPtrel = -NOVAL_F;
-    // GenTruth
-    bool matchGenHadW     =  0;
-    bool matchGenHadZ     =  0;
-    bool matchGenHadH     =  0;
-    bool matchGenHadTop   =  0;
-    bool matchGenLepTop   =  0;
-    bool matchGenLepton   =  0;
-    int  matchedGenLeptonMotherID = -NOVAL_F;
-  };
-
-  class FatJetSelection : public ObjectVectorContainer
-  <eventBuffer::FatJet_s, FatJetData> {
-    
-  public:
-    FatJetSelection(eventBuffer& d) :
-      ObjectVectorContainer<eventBuffer::FatJet_s, FatJetData>
-    (d.FatJet, d.FatJet_pt.size()) { init(); };
-    ~FatJetSelection() {};
-    typedef Object<eventBuffer::FatJet_s, FatJetData> FatJet_c;
-    
-    FatJet_c JetAK8               {this};
-    FatJet_c JetAK8Mass           {this};
-    // All old and new WPs
-    FatJet_c W1                   {this};
-    FatJet_c W2                   {this};
-    FatJet_c W3                   {this};
-    FatJet_c Top1                 {this};
-    FatJet_c Top2                 {this};
-    FatJet_c Top3                 {this};
-    FatJet_c Top4                 {this};
-    FatJet_c Top5                 {this};
-    FatJet_c WDeepMD1             {this};
-    FatJet_c WDeepMD2             {this};
-    FatJet_c WDeepMD3             {this};
-    FatJet_c WDeepMD4             {this};
-    FatJet_c WDeep1               {this};
-    FatJet_c WDeep2               {this};
-    FatJet_c WDeep3               {this};
-    FatJet_c WDeep4               {this};
-    FatJet_c ZDeepMD1             {this};
-    FatJet_c ZDeepMD2             {this};
-    FatJet_c ZDeepMD3             {this};
-    FatJet_c ZDeep1               {this};
-    FatJet_c ZDeep2               {this};
-    FatJet_c ZDeep3               {this};
-    FatJet_c VDeep1               {this};
-    FatJet_c VDeep2               {this};
-    FatJet_c VDeep3               {this};
-    FatJet_c HDeepMD1             {this};
-    FatJet_c HDeepMD2             {this};
-    FatJet_c HDeepMD3             {this};
-    FatJet_c HDeep1               {this};
-    FatJet_c HDeep2               {this};
-    FatJet_c HDeep3               {this};
-    FatJet_c HDeep4               {this};
-    FatJet_c TopDeepMD1           {this};
-    FatJet_c TopDeepMD2           {this};
-    FatJet_c TopDeepMD3           {this};
-    FatJet_c TopDeepMD4           {this};
-    FatJet_c TopDeep1             {this};
-    FatJet_c TopDeep2             {this};
-    FatJet_c TopDeep3             {this};
-    FatJet_c TopDeep4             {this};
-    FatJet_c WparticleNet1        {this};
-    FatJet_c WparticleNet2        {this};
-    FatJet_c WparticleNet3        {this};
-    FatJet_c ZparticleNet1        {this};
-    FatJet_c ZparticleNet2        {this};
-    FatJet_c ZparticleNet3        {this};
-    FatJet_c VparticleNet1        {this};
-    FatJet_c VparticleNet2        {this};
-    FatJet_c VparticleNet3        {this};
-    FatJet_c HparticleNet1        {this};
-    FatJet_c HparticleNet2        {this};
-    FatJet_c HparticleNet3        {this};
-    FatJet_c HparticleNet4        {this};
-    FatJet_c TopparticleNet1      {this};
-    FatJet_c TopparticleNet2      {this};
-    FatJet_c TopparticleNet3      {this};
-    // New definitions
-    FatJet_c HadW                 {this};
-    FatJet_c HadZ                 {this};
-    FatJet_c HadV                 {this};
-    FatJet_c HadH                 {this};
-    FatJet_c HadTop               {this};
-    FatJet_c LepJetCand           {this};
-    FatJet_c HadW_MD              {this};
-    FatJet_c HadZ_MD              {this};
-    FatJet_c HadTop_MD            {this};
-    FatJet_c LepJet               {this};
-    FatJet_c LepJetNoIso          {this};
-    FatJet_c LepJetNoPt           {this};
-    FatJet_c LepTop               {this};
-    FatJet_c LepJetHighMass       {this};
-    FatJet_c LepTopHighMass       {this};
-    FatJet_c LepTopNoIso          {this};
-    FatJet_c LepTopNoPt           {this};
-    FatJet_c LepTopNoMass         {this};
-    FatJet_c LepTopNoSubJetB      {this};
-
-    void initObjects() {
-      moveData();
-      JetAK8              .reset();
-      JetAK8Mass          .reset();
-      W1                  .reset();
-      W2                  .reset();
-      W3                  .reset();
-      Top1                .reset();
-      Top2                .reset();
-      Top3                .reset();
-      Top4                .reset();
-      Top5                .reset();
-      WDeepMD1            .reset();
-      WDeepMD2            .reset();
-      WDeepMD3            .reset();
-      WDeepMD4            .reset();
-      WDeep1              .reset();
-      WDeep2              .reset();
-      WDeep3              .reset();
-      WDeep4              .reset();
-      ZDeepMD1            .reset();
-      ZDeepMD2            .reset();
-      ZDeepMD3            .reset();
-      ZDeep1              .reset();
-      ZDeep2              .reset();
-      ZDeep3              .reset();
-      VDeep1              .reset();
-      VDeep2              .reset();
-      VDeep3              .reset();
-      HDeepMD1            .reset();
-      HDeepMD2            .reset();
-      HDeepMD3            .reset();
-      HDeep1              .reset();
-      HDeep2              .reset();
-      HDeep3              .reset();
-      HDeep4              .reset();
-      TopDeepMD1          .reset();
-      TopDeepMD2          .reset();
-      TopDeepMD3          .reset();
-      TopDeepMD4          .reset();
-      TopDeep1            .reset();
-      TopDeep2            .reset();
-      TopDeep3            .reset();
-      TopDeep4            .reset();
-      WparticleNet1       .reset();
-      WparticleNet2       .reset();
-      WparticleNet3       .reset();
-      ZparticleNet1       .reset();
-      ZparticleNet2       .reset();
-      ZparticleNet3       .reset();
-      VparticleNet1       .reset();
-      VparticleNet2       .reset();
-      VparticleNet3       .reset();
-      HparticleNet1       .reset();
-      HparticleNet2       .reset();
-      HparticleNet3       .reset();
-      HparticleNet4       .reset();
-      TopparticleNet1     .reset();
-      TopparticleNet2     .reset();
-      TopparticleNet3     .reset();
-      HadW                .reset();
-      HadZ                .reset();
-      HadV                .reset();
-      HadH                .reset();
-      HadTop              .reset();
-      LepJetCand          .reset();
-      HadW_MD             .reset();
-      HadZ_MD             .reset();
-      HadTop_MD           .reset();
-      LepJet              .reset();
-      LepJetNoIso         .reset();
-      LepJetNoPt          .reset();
-      LepTop              .reset();
-      LepJetHighMass      .reset();
-      LepTopHighMass      .reset();
-      LepTopNoIso         .reset();
-      LepTopNoPt          .reset();
-      LepTopNoMass        .reset();
-      LepTopNoSubJetB     .reset();
-    }
-  } FatJet;
-  
   //_______________________________________________________
   //                     Gen Particles
 
@@ -1314,22 +1118,6 @@ public:
   int recalc_megajets = 0;
   int recalc_met      = 0;
 
-  // New methods instead of calculate_common_variables
-  void get_signal_mass() {
-    susy_mass.assign(3, -NOVAL_F);
-    if (isSignal) while (GenPart.Loop()) {
-      if (signal_index==0) { if(std::abs(GenPart().pdgId) == 1000021) susy_mass[0] = GenPart().mass; } // gluino
-      else if (signal_index==1||signal_index==4){ if(std::abs(GenPart().pdgId) == 1000006 || std::abs(GenPart().pdgId) == 1000005) susy_mass[0] = GenPart().mass; } // stop
-      else if (signal_index==2||signal_index==3){ if(std::abs(GenPart().pdgId) == 1000024 || std::abs(GenPart().pdgId) == 1000023 || std::abs(GenPart().pdgId) == 1000025) susy_mass[0] = GenPart().mass; } // chargino
-      else if (signal_index==6) { if(std::abs(GenPart().pdgId) == 1000021) susy_mass[0] = GenPart().mass; } // gluino
-
-      if (signal_index==6)               { if(std::abs(GenPart().pdgId) == 1000006) susy_mass[1] = GenPart().mass; } // stop
-      else                                    { if(std::abs(GenPart().pdgId) == 1000022) susy_mass[1] = GenPart().mass; } // LSP neutralino (chi^0_1)
-    }
-   	susy_mass[0] = int(std::round(susy_mass[0]/5)*5);
-   	susy_mass[1] = int(std::round(susy_mass[1]/25)*25);
-  }
-
   void define_lepton_and_photon_variables() {
     // Lepton selections do not depend on any systematics
     // --> event weights are assigned instead (for SF, lost lepton etc)
@@ -1355,28 +1143,33 @@ public:
 
   std::vector<LorentzVector> saved_Jet_v4;
   std::vector<float> saved_Jet_pt;
-  std::vector<LorentzVector> saved_FatJet_v4;
-  std::vector<float> saved_FatJet_pt;
-  std::vector<float> saved_FatJet_msoftdrop;
   float saved_MET_pt;
   float saved_MET_phi;
   void rescale_smear_jet_met(const bool& applySmearing, const unsigned int& syst_index,
-                             const double& nSigmaJES, const double& nSigmaJER)
+                             const double& nSigmaJESs, const double& nSigmaJERs, const double& nSigmaJESAPV, const double& nSigmaJERAPV)
   {
+		double nSigmaJES = nSigmaJESs;
+		double nSigmaJER = nSigmaJERs;
 		if (syst_index!=0) {
       // Load
       while (Jet.Loop()) {
         Jet.v4() = saved_Jet_v4[Jet.i];
         Jet().pt = saved_Jet_pt[Jet.i];
       }
-      while (FatJet.Loop()) {
-        FatJet.v4() = saved_FatJet_v4[Jet.i];
-        FatJet().pt = saved_FatJet_pt[FatJet.i];
-        FatJet().msoftdrop = saved_FatJet_msoftdrop[FatJet.i];
-      }
       MET_pt  = saved_MET_pt;
       MET_phi = saved_MET_phi;
     }
+
+		if(isAPV) {
+			if (nSigmaJES != 0) nSigmaJES = 0;
+			if (nSigmaJER != 0) nSigmaJER = 0;
+			if(nSigmaJESAPV != 0) nSigmaJES = nSigmaJESAPV;
+			if(nSigmaJERAPV != 0) nSigmaJER = nSigmaJERAPV;
+		} else {
+			if (nSigmaJESAPV != 0) nSigmaJES = 0;
+			if (nSigmaJERAPV != 0) nSigmaJER = 0;
+		}
+		
     // Aplly JES/JER
     // Replace pt with the nominal value after smearing
 		//cout << syst_index << ": ";
@@ -1396,63 +1189,11 @@ public:
       }
 			//cout << Jet().pt << ", ";
     }
-    while (FatJet.Loop()) {
-			temp = FatJet().pt_nom;
-			FatJet().pt = FatJet().pt_nom;
-      //double scaleJES = get_syst_weight(FatJet().pt_nom, FatJet().pt_jesTotalUp, FatJet().pt_jesTotalDown, nSigmaJES)/FatJet().pt;
-      double scaleJES = get_syst_weight(FatJet().pt_nom, FatJet().pt_jesTotalUp, FatJet().pt_jesTotalDown, nSigmaJES)/temp;
-      FatJet().pt *= scaleJES;
-      FatJet.v4() *= scaleJES;
-      if (applySmearing) {
-        //double scaleJER = get_syst_weight(FatJet().pt_nom, FatJet().pt_jerUp, FatJet().pt_jerDown, nSigmaJER)/FatJet().pt;
-        double scaleJER = get_syst_weight(FatJet().pt_nom, FatJet().pt_jerUp, FatJet().pt_jerDown, nSigmaJER)/temp;
-        FatJet().pt *= scaleJER;
-        FatJet.v4() *= scaleJER;
-      }
-			//cout << FatJet().pt << ", ";
-      // SoftDrop mass uncertainty
-      // JMS/JMR added to JES/JER in quadrature
-			temp = FatJet().msoftdrop_nom;
-			FatJet().msoftdrop = FatJet().msoftdrop_nom;
-      double jesUNC = get_syst_weight(FatJet().msoftdrop_nom, FatJet().msoftdrop_jesTotalUp, FatJet().msoftdrop_jesTotalDown, nSigmaJES)/FatJet().msoftdrop_nom - 1;
-      double jmsUNC = get_syst_weight(FatJet().msoftdrop_nom, FatJet().msoftdrop_jmsUp, FatJet().msoftdrop_jmsDown, nSigmaJES)/FatJet().msoftdrop_nom - 1;
-      //scaleJES = get_syst_weight(FatJet().msoftdrop_nom, sqrt(jesUNC*jesUNC + jmsUNC*jmsUNC), nSigmaJES)/FatJet().msoftdrop;
-      scaleJES = get_syst_weight(FatJet().msoftdrop_nom, sqrt(jesUNC*jesUNC + jmsUNC*jmsUNC), nSigmaJES)/temp;
-      FatJet().msoftdrop *= scaleJES;
-      if (applySmearing) {
-        double jerUNC = get_syst_weight(FatJet().msoftdrop_nom, FatJet().msoftdrop_jerUp, FatJet().msoftdrop_jerDown, nSigmaJER)/FatJet().msoftdrop_nom - 1;
-        double jmrUNC = get_syst_weight(FatJet().msoftdrop_nom, FatJet().msoftdrop_jmrUp, FatJet().msoftdrop_jmrDown, nSigmaJER)/FatJet().msoftdrop_nom - 1;
-        //double scaleJER = get_syst_weight(FatJet().msoftdrop_nom, sqrt(jerUNC*jerUNC + jmrUNC*jmrUNC), nSigmaJES)/FatJet().msoftdrop;
-        double scaleJER = get_syst_weight(FatJet().msoftdrop_nom, sqrt(jerUNC*jerUNC + jmrUNC*jmrUNC), nSigmaJES)/temp;
-        FatJet().msoftdrop *= scaleJER;
-      }
-    }
 
-		//cout << "MET : ";
-    // MET uncertainties
-    // JES/JER and unclustered energy variations
-		if (!isSignal) {
-      if (applySmearing) {
-        MET_pt   = get_syst_weight(MET_T1Smear_pt,  MET_T1Smear_pt_jesTotalUp,  MET_T1Smear_pt_jesTotalDown,  nSigmaJES);
-        MET_phi  = get_syst_weight(MET_T1Smear_phi, MET_T1Smear_phi_jesTotalUp, MET_T1Smear_phi_jesTotalDown, nSigmaJES);
-        MET_pt  *= get_syst_weight(MET_T1Smear_pt,  MET_T1Smear_pt_jerUp,  MET_T1Smear_pt_jerDown,  nSigmaJER)/MET_T1Smear_pt;
-        MET_phi *= get_syst_weight(MET_T1Smear_phi, MET_T1Smear_phi_jerUp, MET_T1Smear_phi_jerDown, nSigmaJER)/MET_T1Smear_phi;
-      } else {
-        MET_pt   = get_syst_weight(MET_T1_pt,  MET_T1_pt_jesTotalUp,  MET_T1_pt_jesTotalDown,  nSigmaJES);
-        MET_phi  = get_syst_weight(MET_T1_phi, MET_T1_phi_jesTotalUp, MET_T1_phi_jesTotalDown, nSigmaJES);
-        MET_pt  *= get_syst_weight(MET_T1_pt,  MET_T1_pt_jerUp,  MET_T1_pt_jerDown,  nSigmaJER)/MET_T1_pt;
-        MET_phi *= get_syst_weight(MET_T1_phi, MET_T1_phi_jerUp, MET_T1_phi_jerDown, nSigmaJER)/MET_T1_phi;
-      }
-		} else {
-			MET_pt = MET_T1Smear_pt;
-			MET_phi = MET_T1Smear_phi;
-		}
-
-    // MET correction
-    // https://twiki.cern.ch/twiki/bin/view/CMS/MissingETRun2Corrections#xy_Shift_Correction_MET_phi_modu
-    std::pair<double,double> corr_MET = METXYCorr_Met_MetPhi(MET_pt, MET_phi, run, year, !isData, PV_npvs);
-    MET_pt  = corr_MET.first;
-    MET_phi = corr_MET.second;
+    MET_pt   = get_syst_weight(PuppiMET_pt,  PuppiMET_ptJESUp,  PuppiMET_ptJESDown,  nSigmaJES);
+    MET_phi  = get_syst_weight(PuppiMET_phi, PuppiMET_phiJESUp, PuppiMET_phiJESDown, nSigmaJES);
+    MET_pt  *= get_syst_weight(PuppiMET_pt,  PuppiMET_ptJERUp,  PuppiMET_ptJERDown,  nSigmaJER)/PuppiMET_pt;
+    MET_phi *= get_syst_weight(PuppiMET_phi, PuppiMET_phiJERUp, PuppiMET_phiJERDown, nSigmaJER)/PuppiMET_phi;
 
 		//cout << MET_pt << endl;
     // Save and load nominal values
@@ -1462,17 +1203,9 @@ public:
       // Save
       saved_Jet_v4.clear();
       saved_Jet_pt.clear();
-      saved_FatJet_v4.clear();
-      saved_FatJet_pt.clear();
-      saved_FatJet_msoftdrop.clear();
       while (Jet.Loop()) {
         saved_Jet_v4.push_back(Jet.v4());
         saved_Jet_pt.push_back(Jet().pt);
-      }
-      while (FatJet.Loop()) {
-        saved_FatJet_v4.push_back(FatJet.v4());
-        saved_FatJet_pt.push_back(FatJet().pt);
-        saved_FatJet_msoftdrop.push_back(FatJet().msoftdrop);
       }
     }
   }
@@ -1483,10 +1216,9 @@ public:
     Tau.initObjects();
     Photon  .initObjects();
     Jet.initObjects();
-    FatJet.initObjects();
     GenJet.initObjects();
-    SubJet.initObjects();
     GenPart.initObjects();
+		TrigObj.initObjects();
     initEventData();
   }
 
@@ -1501,22 +1233,6 @@ private:
     // Initial loop on AK4 jets 
     // only needed for ele/muon 2D cut (which relies on the associated jet)
     while (Jet.Loop()) {
-      double abseta = std::abs(Jet().eta);
-      double NHF  = Jet().neHEF;
-      double CHF  = Jet().chHEF;
-      double NEMF = Jet().neEmEF;
-      double CEMF = Jet().chEmEF;
-      double CF   = CHF+CEMF;
-      double MUF  = Jet().muEF;
-      int NumConst = Jet().nConstituents;
-      bool tightLepVetoJetID = 0;
-      if (year==2016) {
-        tightLepVetoJetID = (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((abseta<=2.4 && CHF>0 && CF>0 && CEMF<0.90) || abseta>2.4) && abseta<=2.7;
-      } else if (year==2017) {
-        tightLepVetoJetID = (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((abseta<=2.4 && CHF>0 && CF>0 && CEMF<0.90) || abseta>2.4) && abseta<=2.7;
-      } else if (year==2018) {
-        tightLepVetoJetID = (abseta<=2.6 && CEMF<0.8 && CF>0 && CHF>0 && NumConst>1 && NEMF<0.9 && MUF <0.8 && NHF < 0.9 ); 
-      }
 			bool pujet = true;
       if (year==2016) {
 				if(Jet().pt < 40 && Jet().pt > 30 && Jet().puIdDisc < -0.71) pujet = false;
@@ -1529,7 +1245,7 @@ private:
 				else if(Jet().pt < 50 && Jet().pt > 40 && Jet().puIdDisc < -0.19) pujet = false;
 			}
       
-      Jet.Jet.define( tightLepVetoJetID &&
+      Jet.Jet.define( Jet().jetId == 6 &&
                       //pujet &&
                       Jet().pt            >= JET_AK4_PT_CUT &&
                       std::abs(Jet().eta)  < JET_AK4_ETA_CUT);
@@ -1546,15 +1262,9 @@ private:
       float absdz   = std::abs(Electron().dz);
       float miniIso = Electron().miniPFRelIso_all;
       //float ipsig   = std::abs(Electron().sip3d);
-      bool id_noIso_WPL = 0;
-      if (year==2016||year==2018) id_noIso_WPL = Electron().mvaFall17V2noIso_WPL;
-      else if (year==2017)        id_noIso_WPL = Electron().mvaFall17V2noIso_WPL;
-      bool id_noIso_WP90 = 0;
-      if (year==2016||year==2018) id_noIso_WP90 = Electron().mvaFall17V2noIso_WP90;
-      else if (year==2017)        id_noIso_WP90 = Electron().mvaFall17V2noIso_WP90;
-      bool id_Iso_WP90 = 0;
-      if (year==2016||year==2018) id_Iso_WP90 = Electron().mvaFall17V2Iso_WP90;
-      else if (year==2017)        id_Iso_WP90 = Electron().mvaFall17V2Iso_WP90;
+      bool id_noIso_WPL = Electron().mvaFall17V2noIso_WPL;
+      bool id_noIso_WP90 = Electron().mvaFall17V2noIso_WP90;
+      bool id_Iso_WP90 = Electron().mvaFall17V2Iso_WP90;
 
       // Calculate the B2G 2D cut variables
       // [Lepton]_jetPtRelv2 is available in v5 NanoAOD, but it is bugged :(
@@ -1612,22 +1322,6 @@ private:
       double MET_pz = D>=0 ? std::min((-B+std::sqrt(D))/(2*A), (-B-std::sqrt(D))/(2*A)) : -B/(2*A);
       Electron().nu.SetXYZT(MET_px, MET_py, MET_pz, std::sqrt(MET_px*MET_px+MET_py*MET_py+MET_pz*MET_pz));
       Electron().nuDR = DeltaR(Electron().nu, Electron.v4());
-
-      // Assoicated AK8 jet
-      double mindR_AK8 = NOVAL_F;
-      size_t iMatchAK8 = -1;
-      while(FatJet.Loop()) {
-        double dR = DeltaR(Electron.v4(), FatJet.v4());
-        if (dR<0.8 && dR<mindR_AK8) {
-          mindR_AK8 = dR;
-          Electron().matchAK8 = true;
-          iMatchAK8 = FatJet.i;
-        }
-      }
-      if (Electron().matchAK8) {
-        Electron().iMatchedAK8 = iMatchAK8;
-        Electron().nuMatchedAK8DR = DeltaR(Electron().nu, FatJet.v4(iMatchAK8));
-      }
 
       // Selected objects
       // Cut-based veto
@@ -1741,22 +1435,6 @@ private:
       Muon().nu.SetXYZT(MET_px, MET_py, MET_pz, std::sqrt(MET_px*MET_px+MET_py*MET_py+MET_pz*MET_pz));
       Muon().nuDR = DeltaR(Muon().nu, Muon.v4());
     
-      // Assoicated AK8 jet
-      double mindR_AK8 = NOVAL_F;
-      size_t iMatchAK8 = -1;
-      while(FatJet.Loop()) {
-        double dR = DeltaR(Muon.v4(), FatJet.v4());
-        if (dR<0.8 && dR<mindR_AK8) {
-          mindR_AK8 = dR;
-          Muon().matchAK8 = true;
-          iMatchAK8 = FatJet.i;
-        }
-      }
-      if (Muon().matchAK8) {
-        Muon().iMatchedAK8 = iMatchAK8;
-        Muon().nuMatchedAK8DR = DeltaR(Muon().nu, FatJet.v4(iMatchAK8));
-      }
-    
       // Selected objects
       // Veto
       if (Muon.VetoNoIso.define(Muon().softId &&
@@ -1789,6 +1467,13 @@ private:
                           absd0     <  MU_SELECT_IP_D0_CUT &&
                           absdz     <  MU_SELECT_IP_DZ_CUT);
 
+			if(isData && sample.Contains("SingleMuon") && Muon().mediumPromptId && pt >= MU_SELECT_PT_CUT && abseta < MU_SELECT_ETA_CUT && miniIso < MU_SELECT_MINIISO_CUT && absd0 < MU_SELECT_IP_D0_CUT && absdz < MU_SELECT_IP_DZ_CUT) {
+      	while(TrigObj.Loop()){
+					Muon.Matching.define(TrigObj().id == 13 && 
+															 DeltaR(Muon().eta, TrigObj().eta, Muon().phi, TrigObj().phi) < 0.1 &&
+															 TrigObj().filterBits&1 && TrigObj().filterBits&2 && TrigObj().filterBits&8 && TrigObj().filterBits&1024);
+				}
+			}
       if (pt        >= MU_TIGHT_PT_CUT &&
           abseta    <  MU_TIGHT_ETA_CUT &&
           ipsig     <  MU_TIGHT_IP_SIG_CUT &&
@@ -1810,12 +1495,11 @@ private:
     // Taus - full definitions
     while (Tau.Loop()) {
       // Use Loose working point
-      int WP = 3; // 0: VLoose, 1: Loose, 2: Medium, 3: Tight
+      int WP = 2; // 0: VLoose, 1: Loose, 2: Medium, 3: Tight
       int bm_jet = 4<<WP;
-      WP = 1; // 0: VLoose, 1: Loose, 2: Medium, 3: Tight
       int bm_e   = 4<<WP;
       int bm_mu  = 1<<WP;
-      Tau.Veto.define(( Tau().pt            >= TAU_VETO_PT_CUT &&
+      Tau.Select.define(( Tau().pt            >= TAU_VETO_PT_CUT &&
                         std::abs(Tau().eta) <  TAU_VETO_ETA_CUT &&
                         ( ((Tau().idDeepTau2017v2p1VSjet & bm_jet) == bm_jet) ||
                           ((Tau().idDeepTau2017v2p1VSe   & bm_e  ) == bm_e  ) ||
@@ -1845,21 +1529,21 @@ private:
       if (Photon().isScEtaEB){
         // Barrel cuts (EB)
         id_preselect =
-          Photon().hoe                                      < 0.02197 &&
-          Photon().pfRelIso03_all - Photon().pfRelIso03_chg < 1.189+0.01512*pt+2.259e-05*pt*pt &&
-          Photon().pfRelIso03_all                           < 2.08+0.004017*pt;
+          Photon().hoe                                      < 0.02148 &&
+          Photon().pfRelIso03_all - Photon().pfRelIso03_chg < 0.317+0.01512*pt+2.259e-05*pt*pt &&
+          Photon().pfRelIso03_all                           < 2.044+0.004017*pt;
         id_select = id_preselect &&
-          Photon().sieie                                    < 0.01015 &&
-          Photon().pfRelIso03_chg                           < 1.141;
+          Photon().sieie                                    < 0.00996 &&
+          Photon().pfRelIso03_chg                           < 0.65;
       } else {
         // Encap cuts (EE)
         id_preselect =
-          Photon().hoe                                      < 0.0326 &&
-          Photon().pfRelIso03_all - Photon().pfRelIso03_chg < 2.718+0.0117*pt+2.3e-05*pt*pt &&
-          Photon().pfRelIso03_all                           < 3.867+0.0037*pt;
+          Photon().hoe                                      < 0.0321 &&
+          Photon().pfRelIso03_all - Photon().pfRelIso03_chg < 2.716+0.0117*pt+2.3e-05*pt*pt &&
+          Photon().pfRelIso03_all                           < 3.032+0.0037*pt;
         id_select = id_preselect &&
-          Photon().sieie                                    < 0.0272 &&
-          Photon().pfRelIso03_chg                           < 1.051;
+          Photon().sieie                                    < 0.0271 &&
+          Photon().pfRelIso03_chg                           < 0.517;
       }
       // Medium ID without Sigma_ietaieta cut
       if (Photon.PreSelect.define(id_preselect &&
@@ -1868,8 +1552,8 @@ private:
                                   pt        >= PHOTON_SELECT_PT_CUT &&
                                   abseta    <  PHOTON_SELECT_ETA_CUT )) {
         // Fake photons (those that fail the SigmaIeteIeta cut)
-        Photon.Fake.define(Photon().sieie >= (Photon().isScEtaEB ? 0.01015 : 0.0272));
-        Photon.SelectNoIso.define(Photon().sieie < (Photon().isScEtaEB ? 0.01015 : 0.0272));
+        Photon.Fake.define(Photon().sieie >= (Photon().isScEtaEB ? 0.00996 : 0.0271));
+        Photon.SelectNoIso.define(Photon().sieie < (Photon().isScEtaEB ? 0.00996 : 0.0271));
       }
   
       // Photons passing full ID
@@ -1884,8 +1568,6 @@ private:
  
   void define_jets_(const unsigned int& syst_index, int debug = 0) {
     Jet.initObjects();
-    FatJet.initObjects();
-    SubJet.initObjects();
     GenJet.initObjects();
 		if (debug < 0) std::cout << int((syst_index-1)/2) << ", " ;
     // AK4 jets - Definitions except those depending on AK8 jets
@@ -1894,20 +1576,6 @@ private:
 		  if (debug < 0) std::cout << Jet().pt << ", " ;
 			//if(syst_index == 0) Jet().pt = Jet().pt_nom;
       // Jet ID
-      double abseta = std::abs(Jet().eta);
-      double NHF  = Jet().neHEF;
-      double CHF  = Jet().chHEF;
-      double NEMF = Jet().neEmEF;
-      double CEMF = Jet().chEmEF;
-      double CF   = CHF+CEMF;
-      double MUF  = Jet().muEF;
-      int NumConst = Jet().nConstituents;
-      bool tightLepVetoJetID = 0;
-      if (year==2016) {
-        tightLepVetoJetID = (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((abseta<=2.4 && CHF>0 && CF>0 && CEMF<0.80) || abseta>2.4) && abseta<=2.7;
-      } else if (year==2017 || year==2018) {
-        tightLepVetoJetID = (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((abseta<=2.4 && CHF>0 && CF>0 && CEMF<0.80) || abseta>2.4) && abseta<=2.7;
-      }
 			bool pujet = true;
       if (year==2016) {
 				if(Jet().pt < 40 && Jet().pt > 30 && Jet().puIdDisc < -0.71) pujet = false;
@@ -1919,10 +1587,10 @@ private:
 				if(Jet().pt < 40 && Jet().pt > 30 && Jet().puIdDisc < -0.63) pujet = false;
 				else if(Jet().pt < 50 && Jet().pt > 40 && Jet().puIdDisc < -0.19) pujet = false;
 			}
-      Jet.FailID.define( !tightLepVetoJetID &&
+      Jet.FailID.define( Jet().jetId < 6 &&
                          Jet().pt            >= JET_AK4_PT_CUT &&
                          std::abs(Jet().eta)  < JET_AK4_ETA_CUT);
-      if (Jet.Jet.define( tightLepVetoJetID &&
+      if (Jet.Jet.define( Jet().jetId >= 6 &&
                           //pujet &&
                           Jet().pt            >= JET_AK4_PT_CUT &&
                           std::abs(Jet().eta)  < JET_AK4_ETA_CUT)) {
@@ -2002,40 +1670,7 @@ private:
     } // End AK4 Jet Loop
     if (debug) std::cout<<"Variables::define_leptons_and_photons_: AK4 ordinary jets end"<<std::endl;
 
-
-    /*
-    // Match non isolated tight lepton to nearest AK4 jet to be able to tell which Razor megajet it belongs
-    for (size_t i=0; i<noiso_leptons.size(); ++i) {
-      bool match = false;
-      if (iJetLepNoIso[i]==-1) match = true;
-      else if (!Jet.Jet.pass[iJetLepNoIso[i]]) match = true;
-      if (match) {
-        double mindR = NOVAL_F;
-        for(size_t j=0; j<selected_jets.size(); ++j) {
-          double dR = DeltaR(noiso_leptons[i], selected_jets[j]);
-          if (dR<mindR) {
-            mindR = dR;
-            iJetLepNoIso[i] = iJet[j];
-          }
-        }
-      }
-    }
-    for (size_t i=0; i<noniso_leptons.size(); ++i) {
-      bool match = false;
-      if (iJetLepNonIso[i]==-1) match = true;
-      else if (!Jet.Jet.pass[iJetLepNonIso[i]]) match = true;
-      if (match) {
-        double mindR = NOVAL_F;
-        for(size_t j=0; j<selected_jets.size(); ++j) {
-          double dR = DeltaR(noniso_leptons[i], selected_jets[j]);
-          if (dR<mindR) {
-            mindR = dR;
-            iJetLepNonIso[i] = iJet[j];
-          }
-        }
-      }
-    }
-    */
+  }
   
   void define_genparticles_(int debug = 0) {
     if (debug) std::cout<<"Variables::define_genparticles_: start"<<std::endl;
@@ -2243,29 +1878,10 @@ private:
       GenPart.v4().SetPxPyPzE(px, py, pz, e);
       if (debug>1) std::cout<<"Variables::define_genparticles_: gen 2nd loop "<<GenPart.i<<" masses ok"<<std::endl;
 
-      // Match to AK8
-      double mindR = NOVAL_F;
-      while (FatJet.JetAK8.Loop()) {
-        double dR = DeltaR(GenPart.v4(), FatJet.JetAK8.v4());
-        if (dR<0.8 && dR<mindR) {
-          mindR = dR;
-          GenPart().matchAK8 = true;
-          GenPart().iMatchedAK8 = FatJet.JetAK8.iRef;
-        }
-      }
-  
       // Generator leptons
       if (GenPart.Lepton.pass[GenPart.i]) {
         if (debug>1) std::cout<<"Variables::define_genparticles_: gen 2nd loop "<<GenPart.i<<" gen lep"<<std::endl;
         // Propagate lepton info to AK8
-        while (FatJet.Loop()) if (DeltaR(GenPart.v4(), FatJet.v4())<0.8) {
-          FatJet().matchGenLepton = true;
-          if      (GenPart.LeptonFromTop.pass[GenPart.i]) FatJet().matchedGenLeptonMotherID = 6;
-          else if (GenPart.LeptonFromW.  pass[GenPart.i]) FatJet().matchedGenLeptonMotherID = 24;
-          else if (GenPart.LeptonFromZ  .pass[GenPart.i]) FatJet().matchedGenLeptonMotherID = 23;
-          else if (GenPart.LeptonFromH  .pass[GenPart.i]) FatJet().matchedGenLeptonMotherID = 25;
-          else                                            FatJet().matchedGenLeptonMotherID = GenPart().motherId;
-        }
 
         // RECO object matching
         if (GenPart.Ele.define(std::abs(GenPart().pdgId)==11)) {
@@ -2295,7 +1911,7 @@ private:
           // The reco taus are for the hadronic decay, so require Tau_genPartFlav==5
           while (Tau.Loop()) if (Tau().genPartIdx==GenPart.i) {
             Tau().matchGenTau = true;
-            if (Tau.Veto.pass[Tau.i]&&Tau().genPartFlav==5) GenPart().passLepVeto = true;
+            if (Tau.Select.pass[Tau.i]&&Tau().genPartFlav==5) GenPart().passLepVeto = true;
           }
         }
         if (debug>1) std::cout<<"Variables::define_genparticles_: gen 2nd loop "<<GenPart.i<<" lep-reco object matching ok"<<std::endl;
@@ -2423,64 +2039,6 @@ private:
         GenPart.b.define(std::abs(GenPart().pdgId)==5);
         if (debug>1) std::cout<<"Variables::define_genparticles_: gen 2nd loop "<<GenPart.i<<" final state bs ok"<<std::endl;
         
-        // gen Ws
-        // Consider hadronically decaying Ws and match them to AK8 jet
-        if (GenPart.W.define(std::abs(GenPart().pdgId)==24)) {
-          if (GenPart.HadW.define(!GenPart.LepW.define(GenPart.LepW.pass[GenPart.i]))) {
-            if (GenPart().matchAK8) {
-              FatJet(GenPart().iMatchedAK8).matchGenHadW = true;
-              GenPart().passHadWTag = FatJet.HadW.pass[GenPart().iMatchedAK8];
-            }
-          }
-        }
-        if (debug>1) std::cout<<"Variables::define_genparticles_: gen 2nd loop "<<GenPart.i<<" final state Ws ok"<<std::endl;
-        
-        // gen Zs
-        // Consider hadronically decaying Zs and match them to AK8 jet
-        if (GenPart.Z.define(std::abs(GenPart().pdgId)==23)) {
-          if (GenPart.HadZ.define(!GenPart.LepZ.define(GenPart.LepZ.pass[GenPart.i]))) {
-            if (GenPart().matchAK8) {
-              FatJet(GenPart().iMatchedAK8).matchGenHadZ = true;
-              GenPart().passHadZTag = FatJet.HadZ.pass[GenPart().iMatchedAK8];
-            }
-          }
-        }
-        if (debug>1) std::cout<<"Variables::define_genparticles_: gen 2nd loop "<<GenPart.i<<" final state Zs ok"<<std::endl;
-        
-        // gen Higgs
-        // Consider hadronically decaying Higgs and match it to AK8 jet
-        if (GenPart.H.define(std::abs(GenPart().pdgId)==25)) {
-          if (GenPart.HadH.define(!GenPart.LepH.define(GenPart.LepH.pass[GenPart.i]))) {
-            if (GenPart().matchAK8) {
-              FatJet(GenPart().iMatchedAK8).matchGenHadH = true;
-              GenPart().passHadHTag = FatJet.HadH.pass[GenPart().iMatchedAK8];
-            }
-          }
-        }
-        if (debug>1) std::cout<<"Variables::define_genparticles_: gen 2nd loop "<<GenPart.i<<" final state Higgs' k"<<std::endl;
-        
-        // gen tops
-        if (GenPart.Top.define(std::abs(GenPart().pdgId)==6)) {
-          if (debug>1) std::cout<<"Variables::define_genparticles_: gen 2nd loop "<<GenPart.i<<" gentop start"<<std::endl;
-          if (GenPart.LepTop.define(GenPart.LepTop.pass[GenPart.i])) {
-            if (debug>1) std::cout<<"Variables::define_genparticles_: gen 2nd loop "<<GenPart.i<<" gentop lep start"<<std::endl;
-            if (GenPart().matchAK8) {
-              FatJet(GenPart().iMatchedAK8).matchGenLepTop = true;
-              GenPart().passLepTopTag = FatJet.LepTop.pass[GenPart().iMatchedAK8];
-            }
-            if (debug>1) std::cout<<"Variables::define_genparticles_: gen 2nd loop "<<GenPart.i<<" gentop lep ok"<<std::endl;
-          } else {
-            if (debug>1) std::cout<<"Variables::define_genparticles_: gen 2nd loop "<<GenPart.i<<" gentop had start"<<std::endl;
-            GenPart.HadTop.define(!GenPart.LepTop.pass[GenPart.i]);
-            GenPart.LepTop.define(1);
-            if (GenPart().matchAK8) {
-              FatJet(GenPart().iMatchedAK8).matchGenHadTop = true;
-              GenPart().passHadTopTag = FatJet.HadTop.pass[GenPart().iMatchedAK8];
-            }
-            if (debug>1) std::cout<<"Variables::define_genparticles_: gen 2nd loop "<<GenPart.i<<" gentop had ok"<<std::endl;
-          }
-        }
-        if (debug>1) std::cout<<"Variables::define_genparticles_: gen 2nd loop "<<GenPart.i<<" final state tops ok"<<std::endl;
       } // End FinalState
 
     } // End GenPart 2nd loop
@@ -2512,8 +2070,6 @@ private:
     std::vector<LorentzVector> noniso_leptons;
     while (Electron.NonIso.Loop()) noniso_leptons.push_back(Electron.NonIso.v4());
     while (Muon.NonIso.Loop())     noniso_leptons.push_back(Muon.NonIso.v4());
-
-    if (FatJet.LepTop.n>0) lepNeutrinoDR = FatJet.LepTop(0).lepNonIsoNuDR;
 
     // MET variables
     double MET_px = MET_pt*std::cos(MET_phi);
@@ -2601,6 +2157,7 @@ private:
     //                    Jet/MET
 
     // Online HT
+    while (Jet.Loop())    if (Jet().   pt> JET_AK4_PT_CUT && std::abs(Jet().   eta)<3.0) AK4_HtOnline += Jet().pt;
     while (Jet.Jet.Loop()) {
       if (debug>1) std::cout<<"Variables::define_event_variables_: Jet "<<Jet.Jet.i<<" min dphi start"<<std::endl;
       // AK4 HT
@@ -2665,7 +2222,7 @@ private:
         }
       }
     }
-    
+
     if (debug) std::cout<<"Variables::define_event_variables_: end"<<std::endl;
   } // End define_event_variables_
 

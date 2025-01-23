@@ -1,40 +1,40 @@
 import re, os, sys, glob, time, logging, multiprocessing, socket, subprocess, shlex, getpass, math, ROOT
-from optparse import OptionParser
+from argparse import ArgumentParser
 from common_functions import *
 
 # ---------------------- Cmd Line  -----------------------
 
 # Read options from command line
 usage = "Usage: python %prog filelists [options]"
-parser = OptionParser(usage=usage)
-parser.add_option("--run",         dest="run",         action="store_true", default=False, help="Without this option, script only prints cmds it would otherwise excecute")
-parser.add_option("--full",        dest="full",        action="store_true", default=False, help="Run on all datasets found in filelists directory")
-parser.add_option("--test",        dest="test",        action="store_true", default=False, help="Run only on some test files (jetht, ttbar, qcd, T5ttcc)")
-parser.add_option("--batch",       dest="batch",       action="store_true", default=False, help="Send the jobs to batch")
-parser.add_option("--condor",      dest="condor",      action="store_true", default=True,  help="Send the jobs to condor")
-parser.add_option("--queue",       dest="QUEUE",       type="string",       default="1nh", help="Specify which batch queue to use on LxBatch (Default=1nh)")
-parser.add_option("--optim",       dest="optim",       action="store_true", default=True,  help="Optimize job event number based log files in --prevdir, or measured skim ratios")
-parser.add_option("--prevdir",     dest="PREVDIR",     type="string",       default="",    help="Previous running directory used to optimize jobs (default=last dir in results/)")
-parser.add_option("--jobtime",     dest="JOBTIME",     type="int",          default=1500,  help="Desired job running time in s (default=1500)")
-parser.add_option("--quick",       dest="NQUICK",      type="int",          default=0,     help="Run only on a subset of events (1/NQUICK)")
-parser.add_option("--nevt",        dest="NEVT",        type="int",          default=-1,    help="Tells how many event to run as a maximum in a single job (Default=-1 all)")
-parser.add_option("--nfile",       dest="NFILE",       type="int",          default=-1,    help="Tells how many input files to run in a single job (Default=-1 all)")
-parser.add_option("--sleep",       dest="SLEEP",       type="int",          default=3,     help="Wait for this number of seconds between submitting each batch job (Default 3s)")
-parser.add_option("--useprev",     dest="useprev",     action="store_true", default=False, help="Use previously created temporary filelists")
-parser.add_option("--nproc",       dest="NPROC",       type="int",          default=1,     help="Tells how many parallel interactive jobs to start (Default=3)")
-parser.add_option("--outdir",      dest="OUTDIR",      type="string",       default="",    help="Output directory (Default: results/run_[SUBTIME])")
-parser.add_option("--skimout",     dest="SKIMOUT",     type="string",       default="",    help="Output directory for skimming")
-parser.add_option("--skim",        dest="skim",        action="store_true", default=False, help="Skim output to --skimout directory (change in script)")
-parser.add_option("--mirror",      dest="mirror",      action="store_true", default=False, help="Also copy skim output to EOS")
-parser.add_option("--mirror_user", dest="mirror_user", action="store_true", default=False, help="Also copy skim output to Janos' EOS")
-parser.add_option("--plot",        dest="plot",        action="store_true", default=False, help="Make plots after running using Plotter (Janos)")
-parser.add_option("--replot",      dest="replot",      action="store_true", default=False, help="Remake latest set of plots using Plotter (Janos)")
-parser.add_option("--recover",     dest="recover",     action="store_true", default=False, help="Recover stopped task (eg. due to some error)")
-parser.add_option("--nohadd",      dest="nohadd",      action="store_true", default=False, help="Disable hadding output files")
-parser.add_option("--nocheck",     dest="nocheck",     action="store_true", default=False, help="Disable nevent check for output files")
-parser.add_option("--haddonly",    dest="haddonly",    action="store_true", default=False, help="Do not submit any jobs, only merge output")
-parser.add_option("--update",      dest="update",      action="store_true", default=False, help="Update/Bugfix the Analyzer/Plotter code and recompile")
-(opt,args) = parser.parse_args()
+parser = ArgumentParser(usage=usage)
+parser.add_argument("--run",         dest="run",         action="store_true", default=False, help="Without this option, script only prints cmds it would otherwise excecute")
+parser.add_argument("--full",        dest="full",        action="store_true", default=False, help="Run on all datasets found in filelists directory")
+parser.add_argument("--test",        dest="test",        action="store_true", default=False, help="Run only on some test files (jetht, ttbar, qcd, T5ttcc)")
+parser.add_argument("--batch",       dest="batch",       action="store_true", default=False, help="Send the jobs to batch")
+parser.add_argument("--condor",      dest="condor",      action="store_true", default=True,  help="Send the jobs to condor")
+parser.add_argument("--queue",       dest="QUEUE",       type=str,       default="1nh", help="Specify which batch queue to use on LxBatch (Default=1nh)")
+parser.add_argument("--optim",       dest="optim",       action="store_true", default=True,  help="Optimize job event number based log files in --prevdir, or measured skim ratios")
+parser.add_argument("--prevdir",     dest="PREVDIR",     type=str,       default="",    help="Previous running directory used to optimize jobs (default=last dir in results/)")
+parser.add_argument("--jobtime",     dest="JOBTIME",     type=int,          default=1500,  help="Desired job running time in s (default=1500)")
+parser.add_argument("--quick",       dest="NQUICK",      type=int,          default=0,     help="Run only on a subset of events (1/NQUICK)")
+parser.add_argument("--nevt",        dest="NEVT",        type=int,          default=-1,    help="Tells how many event to run as a maximum in a single job (Default=-1 all)")
+parser.add_argument("--nfile",       dest="NFILE",       type=int,          default=-1,    help="Tells how many input files to run in a single job (Default=-1 all)")
+parser.add_argument("--sleep",       dest="SLEEP",       type=int,          default=3,     help="Wait for this number of seconds between submitting each batch job (Default 3s)")
+parser.add_argument("--useprev",     dest="useprev",     action="store_true", default=False, help="Use previously created temporary filelists")
+parser.add_argument("--nproc",       dest="NPROC",       type=int,          default=1,     help="Tells how many parallel interactive jobs to start (Default=3)")
+parser.add_argument("--outdir",      dest="OUTDIR",      type=str,       default="",    help="Output directory (Default: results/run_[SUBTIME])")
+parser.add_argument("--skimout",     dest="SKIMOUT",     type=str,       default="",    help="Output directory for skimming")
+parser.add_argument("--skim",        dest="skim",        action="store_true", default=False, help="Skim output to --skimout directory (change in script)")
+parser.add_argument("--mirror",      dest="mirror",      action="store_true", default=False, help="Also copy skim output to EOS")
+parser.add_argument("--mirror_user", dest="mirror_user", action="store_true", default=False, help="Also copy skim output to Janos' EOS")
+parser.add_argument("--plot",        dest="plot",        action="store_true", default=False, help="Make plots after running using Plotter (Janos)")
+parser.add_argument("--replot",      dest="replot",      action="store_true", default=False, help="Remake latest set of plots using Plotter (Janos)")
+parser.add_argument("--recover",     dest="recover",     action="store_true", default=False, help="Recover stopped task (eg. due to some error)")
+parser.add_argument("--nohadd",      dest="nohadd",      action="store_true", default=False, help="Disable hadding output files")
+parser.add_argument("--nocheck",     dest="nocheck",     action="store_true", default=False, help="Disable nevent check for output files")
+parser.add_argument("--haddonly",    dest="haddonly",    action="store_true", default=False, help="Do not submit any jobs, only merge output")
+parser.add_argument("--update",      dest="update",      action="store_true", default=False, help="Update/Bugfix the Analyzer/Plotter code and recompile")
+opt = parser.parse_args()
 
 # ----------------------  Settings -----------------------
 # Some further (usually) fixed settings, should edit them in this file
@@ -44,7 +44,7 @@ parser.add_option("--update",      dest="update",      action="store_true", defa
 
 # Output directories/files
 SUBTIME = time.strftime("%Y_%m_%d_%Hh%Mm%S", time.localtime())
-TMPDIR = "/tmp/"+getpass.getuser()+"/"
+TMPDIR = "tmp/"+getpass.getuser()+"/"
 if socket.gethostname() == 'login.uscms.org':
     TMPDIR = TMPDIR.replace("/tmp/","/local-scratch/")
 if opt.OUTDIR == "" and not opt.skim and not opt.replot:
@@ -56,14 +56,14 @@ if opt.skim:
         opt.OUTDIR = "results/skim_"+SUBTIME # log files, backup files, output files for non-skims
     # Mirror also here
     if opt.SKIMOUT == "":
-        print "ERROR: Give a suitable --skimout argument, eg. --skimout ntuple/grid18/Skim_Oct31_2Jet_1JetAK8"
+        print("ERROR: Give a suitable --skimout argument, eg. --skimout ntuple/grid18/Skim_Oct31_2Jet_1JetAK8")
         sys.exit()
     if opt.NFILE == -1 and opt.NEVT == -1 and not opt.optim and not opt.useprev:
-        print "ERROR: Give a suitable --nfile, --nevt or --optim argument, otherwise output might become too large!"
+        print("ERROR: Give a suitable --nfile, --nevt or --optim argument, otherwise output might become too large!")
         sys.exit()
     if opt.NQUICK>1:
         if opt.mirror or opt.mirror_user:
-            print "ERROR: Please, don't mirror stuff to EOS, when testing!"
+            print("ERROR: Please, don't mirror stuff to EOS, when testing!")
             sys.exit()
     else:
         if opt.mirror:
@@ -76,27 +76,27 @@ if opt.skim:
             # If not, then makes a script for Viktor
             EOS_VIKTOR = "gsiftp://eoscmsftp.cern.ch//eos/cms/store/caf/user/veszpv/B2GTTreeNtuple/"
             COPYSCRIPT = opt.SKIMOUT.replace(opt.SKIMOUT.split("/")[-1],"")+"mirror_to_Viktors_EOS_"+opt.SKIMOUT.split("/")[-1]+".sh"
-            print "Warning: Don't you want to mirror to EOS? Add: --mirror option!"
-            print "         If not, ignore this message!"
-            print "         Creating a copy script for Viktor: "+COPYSCRIPT
+            print("Warning: Don't you want to mirror to EOS? Add: --mirror option!")
+            print("         If not, ignore this message!")
+            print(("         Creating a copy script for Viktor: "+COPYSCRIPT))
 
 if opt.NEVT == -1 and opt.optim:
-    print "Set default NEVT = 1000000 (optimized for 2 hour jobs)"
+    print("Set default NEVT = 1000000 (optimized for 2 hour jobs)")
     opt.NEVT = 1000000
 if opt.batch and opt.NEVT == -1 and not opt.optim and not opt.useprev and not opt.condor:
-    print "ERROR: Give a suitable --nevt or --optim argument, otherwise some jobs will run too long on batch!"
-    print "       Recommended to start with: --queue=8nh --nevt=1000000"
-    print "       Then next time, you can use default 1nh queue with ~1500s jobs using: --optim"
-    print "       If too many jobs fail, try lowering job runtime eg: --optim --jobtime=1200"
-    print "       Or use --useprev option to run on previously created temporary filelists"
+    print("ERROR: Give a suitable --nevt or --optim argument, otherwise some jobs will run too long on batch!")
+    print("       Recommended to start with: --queue=8nh --nevt=1000000")
+    print("       Then next time, you can use default 1nh queue with ~1500s jobs using: --optim")
+    print("       If too many jobs fail, try lowering job runtime eg: --optim --jobtime=1200")
+    print("       Or use --useprev option to run on previously created temporary filelists")
     sys.exit()
 #if opt.optim and not opt.skim and opt.PREVDIR == "":
 #    sorted_dirs = sorted(glob.glob("results/*/"), key=os.path.getmtime)
 #    if len(sorted_dirs):
 #        opt.PREVDIR = sorted_dirs[-1][:-1]
-#        print "Using --optim option, but no --prevdir argument was given, using previous working directory: "+opt.PREVDIR
+#        print("Using --optim option, but no --prevdir argument was given, using previous working directory: "+opt.PREVDIR
 #    else:
-#        print "ERROR: Using --optim option, but no --prevdir argument was given, and cannot find previous working directory in results/*"
+#        print("ERROR: Using --optim option, but no --prevdir argument was given, and cannot find previous working directory in results/*"
 #        sys.exit()
 if opt.plot:
     #PLOTTER_IN automatic
@@ -125,23 +125,23 @@ else:
 
 # Print some options for logging
 if not opt.run:
-    print "--run option not specified, doing a dry run (only printing out commands)"
+    print("--run option not specified, doing a dry run (only printing out commands)")
 
 if opt.full:
-    print "Running with option: --full"
+    print("Running with option: --full")
 if opt.skim:
-    print "Running with option: --skim"
+    print("Running with option: --skim")
 elif opt.replot:
-    print "Running with option: --replot"
+    print("Running with option: --replot")
     opt.plot = 0 # for safety
 elif opt.test:
-    print "Running with option: --test (few files)"
+    print("Running with option: --test (few files)")
 
 if opt.plot:
-    print "Running with option: --plot (will produce plots with Plotter)"
+    print("Running with option: --plot (will produce plots with Plotter)")
 
 if opt.NQUICK>1:
-    print "Running with option: --quick "+str(opt.NQUICK)+" (1/"+str(opt.NQUICK)+" statistics)"
+    print(("Running with option: --quick "+str(opt.NQUICK)+" (1/"+str(opt.NQUICK)+" statistics)"))
 
 # Some automatic filelists
 if opt.recover:
@@ -160,12 +160,12 @@ elif opt.test:
     input_filelists += sorted(glob.glob("filelists/2017/backgrounds/QCD_HT*.txt"))
     input_filelists += sorted(glob.glob("filelists/2017/backgrounds/TT_powheg-pythia8_ext4*.txt"))
     input_filelists += sorted(glob.glob("filelists/2017/signals/FastSim_SMS-T5ttcc*.txt"))
-elif not opt.replot and len(args) < 1:
-    print "Always tell me what filelists to run over (except when using --full or --test options)!"
-    print "For more help, run as python %s -h" % (sys.argv[0])
+elif not opt.replot:
+    print("Always tell me what filelists to run over (except when using --full or --test options)!")
+    print(("For more help, run as python %s -h" % (sys.argv[0])))
     sys.exit()
 else:
-    input_filelists = args
+    input_filelists = ""
 
 # Read some options from included settings_*.h file
 with open("Analyzer.cc") as ana:
@@ -197,9 +197,9 @@ if opt.useprev:
         opt.optim = True
 
 if opt.useprev:
-    print "Reusing previously created temporary filelists for split jobs (eg. --batch) in filelists_tmp/:"
+    print("Reusing previously created temporary filelists for split jobs (eg. --batch) in filelists_tmp/:")
 elif (opt.NFILE != -1 or opt.NEVT != -1):
-    print "Start creating new temporary filelists for split jobs (eg. batch) in filelists_tmp/:"
+    print("Start creating new temporary filelists for split jobs (eg. batch) in filelists_tmp/:")
     for tmp_txtfile in glob.glob('filelists_tmp/*/*/*.txt'): os.remove(tmp_txtfile)
     if os.path.exists('filelists_tmp/job_splitting.txt'): os.remove('filelists_tmp/job_splitting.txt')
 
@@ -212,7 +212,7 @@ if not opt.useprev and (opt.NEVT != -1 or opt.optim):
 optim_ratios = {}
 def get_optim_ratios(opt, samplename):
     global optim_ratios
-    if samplename in optim_ratios.keys():
+    if samplename in list(optim_ratios.keys()):
         return optim_ratios[samplename]
     else:
         optim = 1.0
@@ -240,7 +240,7 @@ def get_optim_ratios(opt, samplename):
                 # If no optimization found (happens rarely for new samples), use 0.2 (to be safe for all samples)
                 # Make sure to remake the job_ratios.txt file after the run!
                 if not optim_found:
-                    print "No optimization found for "+samplename+" using 1.0"
+                    print(("No optimization found for "+samplename+" using 1.0"))
                     optim = 1.0
         optim_ratios[samplename] = optim
         return optim
@@ -253,7 +253,7 @@ sites = {}
 
 countfileloc = "condor/filelist_and_counts.txt"
 if opt.recover: countfileloc = EXEC_PATH+"/condor/filelist_and_counts.txt"
-with open(countfileloc) as counts_file:
+with open(countfileloc, 'r') as counts_file:
     for line in counts_file.readlines():
         counts[line.split()[0]] = int(line.split()[1])
         sites[line.split()[0]]  = line.split()[2]
@@ -286,8 +286,8 @@ for filelist in input_filelists:
     
     # Temporary filelists
     if opt.useprev:
-        #print filelist
-        #print len(ana_arguments)
+        #print(filelist
+        #print(len(ana_arguments)
         # Use previously created lists
         #if not opt.skim: options.append("fullFileList="+filelist) # Need full ntuple to correctly normalize weights
         jobsplit_options = {}
@@ -328,7 +328,7 @@ for filelist in input_filelists:
             nevtperjob_sample = int(get_optim_ratios(opt, samplename) * opt.NEVT)
         
         # Loop on file lists and split to tmp_filelists for nevt < nevtperjob_sample
-        with open(filelist) as f:
+        with open(filelist, 'r') as f:
             files = f.read().splitlines()
             jobnum = 0
             ifirst = 0
@@ -336,12 +336,13 @@ for filelist in input_filelists:
             curr_files = []
             curr_max_nevt = 0
             for i in range(0, len(files)):
+                nevt = counts[files[i]]
                 # First get the number of events in the file from txt file created by condor/setup.py
                 if files[i] in counts:
                     nevt = counts[files[i]]
                 else:
-                    print "ERROR: File not found in condor/filelist_and_counts.txt"
-                    print files[i]
+                    print("ERROR: File not found in condor/filelist_and_counts.txt")
+                    print((files[i]))
                     sys.exit()
                 # OLD method: Create a new list after every nevtperjob_sample
                 #if i==0 or (curr_nevt + nevt > nevtperjob_sample):
@@ -357,7 +358,7 @@ for filelist in input_filelists:
                 #        with open(tmp_filelist, "a") as job_filelist:
                 #            print>>job_filelist, files[i]
                 #    except:
-                #        print "Warning: Could not write to disk (IOError), wait 10s and continue"
+                #        print("Warning: Could not write to disk (IOError), wait 10s and continue"
                 #        time.sleep(10)
                 #        ntry += 1
                 #        if ntry == 20: sys.exit()
@@ -385,11 +386,11 @@ for filelist in input_filelists:
                         tmp_filelist = filelist.replace("filelists","filelists_tmp").replace(".txt","_"+str(jobnum)+".txt")
                         with open(tmp_filelist, "w") as job_filelist:
                             for filename in curr_files:
-                                print>>job_filelist, filename
+                                print(filename, file=job_filelist)
                         job_args = [output_file.replace(".root","_"+str(jobnum)+".root"), [EXEC_PATH+"/"+tmp_filelist], job_opt, log_file.replace(".log","_"+str(jobnum)+".log")]
                         ana_arguments.append(job_args)
                         # save job splitting info for later recovery/useprev etc.
-                        print>>job_splitting_file, tmp_filelist+" "+(" ".join(opt_save))
+                        print(tmp_filelist+" "+(" ".join(opt_save)), file=job_splitting_file)
                         # prepare next iteration
                         curr_nevt -= nevtperjob_sample
                         if ilast == curr_max_nevt:
@@ -415,11 +416,12 @@ for filelist in input_filelists:
                         tmp_filelist = filelist.replace("filelists","filelists_tmp").replace(".txt","_"+str(jobnum)+".txt")
                         with open(tmp_filelist, "w") as job_filelist:
                             for filename in curr_files:
-                                print>>job_filelist, filename
+                                print(filename, file=job_filelist)
+                                #print(filename, job_filelist)
                         job_args = [output_file.replace(".root","_"+str(jobnum)+".root"), [EXEC_PATH+"/"+tmp_filelist], job_opt, log_file.replace(".log","_"+str(jobnum)+".log")]
                         ana_arguments.append(job_args)
                         # save job splitting info for later recovery/useprev etc.
-                        print>>job_splitting_file, tmp_filelist+" "+(" ".join(opt_save))
+                        print(tmp_filelist+" "+(" ".join(opt_save)), file=job_splitting_file)
                 else:
                     # Data - Contains files that cannot be merged in TChain due to different branches (L1 bit for eg.)
                     # Use maximum 1 file per job and split them if a smaller event number is required
@@ -439,19 +441,19 @@ for filelist in input_filelists:
                         jobnum += 1
                         tmp_filelist = filelist.replace("filelists","filelists_tmp").replace(".txt","_"+str(jobnum)+".txt")
                         with open(tmp_filelist, "w") as job_filelist:
-                            print>>job_filelist, files[i]
+                            print(files[i], file=job_filelist)
                         job_args = [output_file.replace(".root","_"+str(jobnum)+".root"), [EXEC_PATH+"/"+tmp_filelist], job_opt, log_file.replace(".log","_"+str(jobnum)+".log")]
                         ana_arguments.append(job_args)
                         # save job splitting info for later recovery/useprev etc.
-                        print>>job_splitting_file, tmp_filelist+" "+(" ".join(opt_save))
+                        print(tmp_filelist+" "+(" ".join(opt_save)), file=job_splitting_file)
                         # prepare next iteration
                         ifirst = ilast
         
         # Some printouts
         if opt.optim:
-            print "  "+filelist.replace("filelists","filelists_tmp").replace(".txt","_*.txt")+" created (MAX NEVT (optim) = "+str(nevtperjob_sample)+")"
+            print(("  "+filelist.replace("filelists","filelists_tmp").replace(".txt","_*.txt")+" created (MAX NEVT (optim) = "+str(nevtperjob_sample)+")"))
         else:
-            print "  "+filelist.replace("filelists","filelists_tmp").replace(".txt","_*.txt")+" created"
+            print(("  "+filelist.replace("filelists","filelists_tmp").replace(".txt","_*.txt")+" created"))
     elif opt.NFILE != -1:
         # SPLIT MODE: Each jobs runs on max opt.NFILE
         #if not opt.skim: options.append("fullFileList="+EXEC_PATH+"/"+filelist) # Need full ntuple to correctly normalize weights
@@ -461,7 +463,7 @@ for filelist in input_filelists:
                 tmp_filelist = filelist.replace("filelists","filelists_tmp").replace(".txt","_"+str(n)+".txt")
                 with open(tmp_filelist, "w") as job_filelist:
                     for i in range((n-1)*opt.NFILE, min(n*opt.NFILE,len(files))):
-                        print>>job_filelist, files[i]
+                        print(files[i], file=job_filelist)
                 job_args = [output_file.replace(".root","_"+str(n)+".root"), [EXEC_PATH+"/"+tmp_filelist], options, log_file.replace(".log","_"+str(n)+".log")]
                 ana_arguments.append(job_args)
     else:
@@ -471,7 +473,7 @@ for filelist in input_filelists:
 if not opt.useprev and (opt.NEVT != -1 or opt.optim):
     job_splitting_file.close()
 
-print "Number of jobs: "+str(len(ana_arguments))
+print(("Number of jobs: "+str(len(ana_arguments))))
 
 # Determine the sites to run the job for condor
 # Check if the input file is in the EU/US and set the site there if needed
@@ -503,7 +505,7 @@ if opt.recover:
                             clusterid = line.split()[-1].replace(".","")
                             cluster_ids.append(clusterid)
             if len(cluster_ids):
-                print "Recovering jobs from cluster ids: "+(" ".join(cluster_ids))
+                print(("Recovering jobs from cluster ids: "+(" ".join(cluster_ids))))
                 logged_call(shlex.split('condor_q -w --nobatch '+(" ".join(cluster_ids))), TMPDIR+'batchstatus_'+cluster_ids[-1]+'.txt', 1)
                 with open(TMPDIR+'batchstatus_'+clusterid+'.txt') as batchstatus:
                     lines = batchstatus.readlines()
@@ -524,14 +526,14 @@ if opt.recover:
                                             last_known_status[jobindex] = int(time.time())
                                             last_condor_jobid[jobindex] = jobid
                                             nrecov += 1
-                                            #print "- Found running HTCondor job: ID = "+jobid+" ("+input_tmp_filelist+", jobindex = "+str(jobindex)+")"
+                                            #print("- Found running HTCondor job: ID = "+jobid+" ("+input_tmp_filelist+", jobindex = "+str(jobindex)+")"
                 os.remove(TMPDIR+'batchstatus_'+cluster_ids[-1]+'.txt')
         else:
             # Check if the submission time is available
             if os.path.exists(EXEC_PATH+"/creation_time.txt"):
                 with open(EXEC_PATH+"/creation_time.txt") as sub_time:
                     SUBTIME=sub_time.readline().replace('\n','')
-                    print "Recovering previous jobs with submission time: "+SUBTIME
+                    print(("Recovering previous jobs with submission time: "+SUBTIME))
                     # Check status of all running/pending jobs on lxbatch
                     logged_call(shlex.split('bjobs -W -noheader'), TMPDIR+'batchstatus_'+SUBTIME+'.txt', 1)
                     with open(TMPDIR+'batchstatus_'+SUBTIME+'.txt') as batchstatus:
@@ -544,11 +546,11 @@ if opt.recover:
                                     last_known_status[jobindex] = int(time.time())
                                     nrecov += 1
                     os.remove(TMPDIR+'batchstatus_'+SUBTIME+'.txt')
-        print "Successfully recovered "+str(nrecov)+" running jobs from previous submissions"
+        print(("Successfully recovered "+str(nrecov)+" running jobs from previous submissions"))
 
 if opt.NFILE != -1 or opt.NEVT != -1 and not opt.useprev:
-    print "All temporary filelist ready."
-    print
+    print("All temporary filelist ready.")
+    print()
 
 # --------------------- Functions ------------------------
 
@@ -560,22 +562,22 @@ def backup_files(backup_dir, creation_time, update):
         else:
             special_call(["mv", backup_dir, backup_dir+"_orig"], opt.run)
     else:
-        print "Backing up files in: "+backup_dir
-        print
+        print(("Backing up files in: "+backup_dir))
+        print()
     if not os.path.exists(backup_dir): special_call(["mkdir", "-p", backup_dir], opt.run)
     special_call(["cp", "-rpL", "btag_eff", "condor", "correction_factors", "data", "filelists", "filelists_tmp", "include", "pileup", "python", "scale_factors", "scripts", "src", "systematics", "trigger_eff", "setup.sh"] + glob.glob("*.h") + glob.glob("*.cc") + glob.glob("*ratios.txt") + glob.glob("Makefile*") + [backup_dir+"/"], opt.run)
     #special_call(["mv", backup_dir+"/RazorBoost-CMS-Connect", backup_dir+"/condor"], opt.run)
     special_call(["rm", "-rf", backup_dir+"/condor/.git"], opt.run)
     if not opt.update:
         with open(backup_dir+"/creation_time.txt","w") as sub_time:
-            print>>sub_time, creation_time
-    print
+            print(creation_time, file=sub_time)
+    print()
 
 # Compile programs
 def compile(Ana = 1, Plotter = 1):
     global opt, EXEC_PATH
-    print "Compiling ..."
-    print
+    print("Compiling ...")
+    print()
     saved_path = os.getcwd()
     if opt.run: os.chdir(EXEC_PATH)
     special_call(["make", "clean"], opt.run)
@@ -587,19 +589,21 @@ def compile(Ana = 1, Plotter = 1):
         special_call(["chmod", "777", "Plotter"], opt.run)
     # Copy the results folder to the uscms stash server
     if opt.run: os.chdir(saved_path)
-    print
+    print()
 
 def create_sandbox(backup_dir, update):
-    print "Creating sandbox for condor"
-    print
+    print("Creating sandbox for condor")
+    print()
     sandbox = os.path.split(backup_dir)[0]+"/sandbox-BoostAnalyzer17.tar"
+    #sandbox = "sandbox-BoostAnalyzer17.tar"
     if update:
         special_call(["rm", sandbox], opt.run)
     special_call(["tar", "-cf", sandbox, "-C", os.path.split(backup_dir)[0], "BoostAnalyzer17"], opt.run)
-    print
+    special_call(["chmod", "755", sandbox], opt.run)
+    print()
 
 # Run a single Analyzer instance (on a single input list, i.e. one dataset)
-def analyzer_job((jobindex)):
+def analyzer_job(jobindex):
     global ana_arguments, opt, EXEC_PATH, COPYSCRIPT
     output_file = ana_arguments[jobindex][0]
     input_list  = ana_arguments[jobindex][1]
@@ -609,9 +613,9 @@ def analyzer_job((jobindex)):
     if opt.run:
         if opt.batch:
             if not opt.condor:
-                print "Sending job to LxBatch (queue: "+opt.QUEUE+"), expected output: "+output_file
+                print(("Sending job to LxBatch (queue: "+opt.QUEUE+"), expected output: "+output_file))
         else:
-            print "Start Analyzing, expected output: "+output_file
+            print(("Start Analyzing, expected output: "+output_file))
     if not os.path.exists(os.path.dirname(output_file)):
         special_call(["mkdir", "-p", os.path.dirname(output_file)], opt.run, 0)
     cmd = [EXEC_PATH+"/Analyzer", output_file] + options + input_list
@@ -619,11 +623,18 @@ def analyzer_job((jobindex)):
         logdirname = os.path.dirname(output_log)
         if logdirname != "" and not os.path.exists(logdirname): special_call(["mkdir", "-p", logdirname], opt.run, 0)
         if opt.condor:
-            with open(opt.OUTDIR+"/log/condor_joblist_"+condor_site+".txt", "a") as joblist:
+            log_file_path = os.path.join(opt.OUTDIR, "log", f"condor_joblist_{condor_site}.txt")
+            max_file_size = 100 * 1024 * 1024
+            if os.path.exists(log_file_path) and os.path.getsize(log_file_path) >= max_file_size:
+                new_log_file_path = log_file_path.replace(".txt", f"_{jobindex}.txt")
+                os.rename(log_file_path, new_log_file_path)
+                log_file_path = new_log_file_path
+            #with open(opt.OUTDIR+"/log/condor_joblist_"+condor_site+".txt", "a") as joblist:
+            with open(log_file_path, "a") as joblist:
                 output_out = output_log.replace(".log",".out")
                 output_err = output_log.replace(".log",".err")
                 filelist = input_list[0].replace(EXEC_PATH+"/","")
-                print>>joblist, output_out+', '+output_err+', '+output_log+', "output.root='+output_file+'", '+filelist+' '+' '.join(options)
+                print(output_out+', '+output_err+', '+output_log+', "output.root='+output_file+'", '+filelist+' '+' '.join(options), file=joblist)
                 #print>>joblist, output_out+', '+output_err+', '+output_log+', "output.root='+output_file+'", '+filelist
         else:
             # Submit job to lxbatch (immediately)
@@ -653,7 +664,7 @@ def analyzer_job((jobindex)):
         if opt.mirror or opt.mirror_user: logged_call(["env", "--unset=LD_LIBRARY_PATH", "gfal-copy", "-f", "-r", output_file, EOS_JANOS+outpath], output_log, opt.run)
         elif opt.run and opt.NQUICK==0:
             with open(COPYSCRIPT, "a") as script:
-                print>>script, 'env --unset=LD_LIBRARY_PATH gfal-copy -r '+output_file+' '+EOS_VIKTOR+outpath
+                print('env --unset=LD_LIBRARY_PATH gfal-copy -r '+output_file+' '+EOS_VIKTOR+outpath, file=script)
                 #print>>script, 'srm-set-permissions -type=CHANGE -group=RW '+EOS_VIKTOR+outpath
     return output_file
 
@@ -690,7 +701,7 @@ def merge_output(ana_arguments, last_known_status):
             else:
                 ready_to_merge = False
                 mergeables = []
-        #print ("%4d - %d - missing=%d - %s" % (i, ready_to_merge, last_known_status[i]==-1, ana_arguments[i][0]))
+        #print(("%4d - %d - missing=%d - %s" % (i, ready_to_merge, last_known_status[i]==-1, ana_arguments[i][0]))
     if ready_to_merge: all_mergeables.append(mergeables)
     # Merge them if they are ready
     for i in range(0, len(all_mergeables)):
@@ -700,17 +711,17 @@ def merge_output(ana_arguments, last_known_status):
         mergeonbatch = False
         if os.path.exists(output):
             if os.path.getsize(output)==1024 and (time.time()-os.path.getmtime(output))>3600:
-                print "Redo failed merging (locally) for "+output
+                print(("Redo failed merging (locally) for "+output))
                 os.remove(output)
                 mergeonbatch = False
         if not os.path.exists(output):
             if len(allinput)==1:
                 # Single files can simply be copied
-                print "File for "+all_mergeables[i][0]+" is ready"
+                print(("File for "+all_mergeables[i][0]+" is ready"))
                 special_call(["cp","-p", allinput[0], output], opt.run, 0)
             else:
                 # Multiple files will be hadded
-                print str(len(allinput))+" files for "+output+" are ready to be merged"
+                print((str(len(allinput))+" files for "+output+" are ready to be merged"))
                 #logged_call(["hadd", "-f", "-v", "-n", "200"]+all_mergeables[i], all_mergeables[i][0].rsplit("/",1)[0]+"/log/"+all_mergeables[i][0].rsplit("/",1)[1].replace(".root",".log"), opt.run)
                 # hadd produces problems when merging too many files
                 # so we merge files in chunks of maximum 100 files each
@@ -723,7 +734,7 @@ def merge_output(ana_arguments, last_known_status):
                 else:
                     # Two staged hadding:
                     # - First merge every Nmerge files to temp files
-                    for n in range(1, (len(allinput)-1)/Nmerge+2):
+                    for n in range(1, (len(allinput)-1)//Nmerge+2):
                         tmpoutput = output.replace(".root","_"+str(n)+".root")
                         if os.path.isfile(tmpoutput):
                             if os.path.getsize(tmpoutput)>1024:
@@ -732,7 +743,7 @@ def merge_output(ana_arguments, last_known_status):
                                 tmplist = []
                                 for i in range((n-1)*Nmerge, min(n*Nmerge,len(allinput))): tmplist.append(allinput[i])
                                 tmplog = tmpoutput.rsplit("/",1)[0]+"/log/"+tmpoutput.rsplit("/",1)[1].replace(".root",".log")
-                                print "- Merging into temp file (again, locally): "+tmpoutput
+                                print(("- Merging into temp file (again, locally): "+tmpoutput))
                                 hadd_job(tmpoutput, tmplist, tmplog, False)
                                 if os.path.getsize(tmpoutput)>1024:
                                     alltmp.append(tmpoutput)
@@ -740,19 +751,19 @@ def merge_output(ana_arguments, last_known_status):
                             tmplist = []
                             for i in range((n-1)*Nmerge, min(n*Nmerge,len(allinput))): tmplist.append(allinput[i])
                             tmplog    = tmpoutput.rsplit("/",1)[0]+"/log/"+tmpoutput.rsplit("/",1)[1].replace(".root",".log")
-                            print "- Merging into temp file: "+tmpoutput
+                            print(("- Merging into temp file: "+tmpoutput))
                             hadd_job(tmpoutput, tmplist, tmplog, mergeonbatch)
                     # - then merge the resulting temp files into a single file
                     #   and remove the temporary files
                     if len(alltmp) == (len(allinput)-1)/Nmerge+1:
-                        print "- Merging temp files into: "+output
+                        print(("- Merging temp files into: "+output))
                         hadd_job(output, alltmp, log, mergeonbatch)
                         for tmpfile in alltmp:
                             #if os.path.isfile(tmpfile):
                             #    os.remove(tmpfile)
                             #else:
                             if not os.path.isfile(tmpfile):
-                                print "Something went wrong with the hadding of tmp file: "+tmpfile
+                                print(("Something went wrong with the hadding of tmp file: "+tmpfile))
                                 sys.exit()
                 #  Check that the result has the right size (if not, delete)
                 if os.path.isfile(output):
@@ -778,7 +789,7 @@ def merge_output(ana_arguments, last_known_status):
                 # The batch job probably failed, so redo it locally
                 hadd_job(haddoutfile, ready, haddoutfile.replace("hadd","hadd/log").replace(".root",".log"), False)
         else:
-            #print allitem
+            #print(allitem
             ready = []
             allitem = sorted(glob.glob(EXEC_PATH+"/"+listdir+"/*.txt"))
             for item in allitem:
@@ -788,7 +799,7 @@ def merge_output(ana_arguments, last_known_status):
                         ready.append(hadded)
             if len(ready) == len(allitem):
                 if not os.path.exists(haddoutfile):
-                    print "Larger set of jobs ready, merging output files into: "+haddoutfile
+                    print(("Larger set of jobs ready, merging output files into: "+haddoutfile))
                     hadd_job(haddoutfile, ready, haddoutfile.replace("hadd","hadd/log").replace(".root",".log"))
     # And finally merge all partial output files to a single final output file
     final_hadded_filename = opt.OUTDIR+".root"
@@ -796,10 +807,10 @@ def merge_output(ana_arguments, last_known_status):
         if os.path.exists(final_hadded_filename):
             if os.path.getsize(final_hadded_filename)<1024:
                 os.remove(final_hadded_filename)
-                print "All jobs are ready, merging (again) all output files into: "+final_hadded_filename
+                print(("All jobs are ready, merging (again) all output files into: "+final_hadded_filename))
                 hadd_job(final_hadded_filename, all_ready, opt.OUTDIR+"/hadd/log/final.log", False)
         else:
-            print "All jobs are ready, merging all output files into: "+final_hadded_filename
+            print(("All jobs are ready, merging all output files into: "+final_hadded_filename))
             hadd_job(final_hadded_filename, all_ready, opt.OUTDIR+"/hadd/log/final.log", False)
 
 def get_input_count(opt, ana_arguments, jobindex):
@@ -845,35 +856,55 @@ def analysis(ana_arguments, last_known_status, last_condor_jobid, nproc):
         if not opt.recover:
             if opt.condor:
                 # condor jobs
-                print "Preparing "+str(njob)+" jobs for HTCondor submission:"
+                print(("Preparing "+str(njob)+" jobs for HTCondor submission:"))
             else:
                 # lxbatch jobs
-                print "Running "+str(njob)+" instances of LxBatch jobs:"
-            print
+                print(("Running "+str(njob)+" instances of LxBatch jobs:"))
+            print()
         
         # Loop until batch task completion
         finished = False
         #while nfinished != njob:
         while not finished:
+            # Debug the state of 'time' before using
+            import time  # Re-import the time module to ensure correctness
+            
             cyclestarttime = time.time()
+            #print(f"Cycle start time: {cyclestarttime}")
+            
             # 1) Query the status of the already running batch jobs
-            if opt.condor and len(cluster_ids)>0:
+            if opt.condor and len(cluster_ids) > 0:
                 latest_condor_query = {}
-                latest_batch_status = TMPDIR+'batchstatus_'+cluster_ids[-1]+'.txt'
-                logged_call(shlex.split(
-                    'condor_q --nobatch '+(" ".join(cluster_ids))+
-                    ' -format "%s " GlobalJobId'+
-                    ' -format "%s " JobStatus'+
-                    ' -format "%d " JobCurrentStartExecutingDate'+
-                    ' -format "%d\n" CompletionDate'), latest_batch_status, opt.run)
+                latest_batch_status = TMPDIR + 'batchstatus_' + cluster_ids[-1] + '.txt'
+              #  logged_call(shlex.split(
+              #      'condor_q --nobatch '+(" ".join(cluster_ids))+
+              #      ' -format "%s " GlobalJobId'+
+              #      ' -format "%s " JobStatus'+
+              #      ' -format "%d " JobCurrentStartExecutingDate'+
+              #      ' -format "%d\n" CompletionDate'), latest_batch_status, opt.run)
+                condor_command = [
+                    'condor_q', '--nobatch', *cluster_ids,  # Expands the cluster_ids list directly
+                    '-format', '"%s "', 'GlobalJobId',
+                    '-format', '"%s "', 'JobStatus',
+                    '-format', '"%d "', '"ifThenElse(isUndefined(JobCurrentStartExecutingDate), 0, JobCurrentStartExecutingDate)"',
+                    '-format', '"%d\n"', '"ifThenElse(isUndefined(CompletionDate), 0, CompletionDate)"'
+                ]
+                command_str = ' '.join(condor_command)
+                logged_call(shlex.split(command_str), latest_batch_status, opt.run)
+                flag = True
                 with open(latest_batch_status) as batchstatus:
                     for line in batchstatus.readlines():
-                        jobid     = line.split()[0].split('#')[1]
-                        status    = int(line.split()[1])
-                        subtime   = int(line.split()[0].split('#')[2])
-                        starttime = int(line.split()[2])
-                        latest_condor_query[jobid] = [status, subtime, starttime]
-                special_call(["mv", latest_batch_status, opt.OUTDIR+"/log/latest_batchstatus.txt"], opt.run)
+                        parts = line.split()
+                        parts_split = parts[0].split('#')
+                        if len(parts_split) > 1:
+                            jobid = parts[0].split('#')[1]
+                            status = int(parts[1])
+                            subtime = int(parts[0].split('#')[2])
+                            starttime = int(parts[2])
+                            latest_condor_query[jobid] = [status, subtime, starttime]
+                        else:
+                            flag = False
+                if flag: special_call(["mv", latest_batch_status, opt.OUTDIR+"/log/latest_batchstatus.txt"], opt.run)
             # 2) Determine a list of missing jobs
             nfinished = 0
             ncondor = 0
@@ -911,7 +942,7 @@ def analysis(ana_arguments, last_known_status, last_condor_jobid, nproc):
                                 if opt.condor:
                                     jobid       = last_condor_jobid[jobindex]
                                     # Check if the job is found with the latest query
-                                    if not jobid in latest_condor_query.keys():
+                                    if not jobid in list(latest_condor_query.keys()):
                                         submit_job = 2
                                         last_known_status[jobindex] = -1
                                     else:
@@ -947,21 +978,22 @@ def analysis(ana_arguments, last_known_status, last_condor_jobid, nproc):
                                             runtime = int(time.time()) - starttime
                                             # TODO: Delete this when all stdout is successfully streamed
                                             if max_possible_nps*maxratio < target_nps and runtime > target_time:
-                                                #print "Job must be running too slow"
-                                                #print "- Jobid:            "+jobid
-                                                #print "- submission:       "+str(subtime)
-                                                #print "- job start:        "+str(starttime)
-                                                #print "- current time:     "+str(int(time.time()))
-                                                #print "- running time:     "+str(runtime)
-                                                #print "- max possible nps: "+str(max_possible_nps)
-                                                #print "- tartget_nps:      "+str(target_nps)
+                                                #print("Job must be running too slow"
+                                                #print("- Jobid:            "+jobid
+                                                #print("- submission:       "+str(subtime)
+                                                #print("- job start:        "+str(starttime)
+                                                #print("- current time:     "+str(int(time.time()))
+                                                #print("- running time:     "+str(runtime)
+                                                #print("- max possible nps: "+str(max_possible_nps)
+                                                #print("- tartget_nps:      "+str(target_nps)
                                                 #print
                                                 submit_job = 5
-                                            elif runtime > target_time/4.0:
+                                            elif runtime > target_time:
                                                 last_known_status[jobindex] = int(time.time())
                                                 if os.path.exists(output_stdout):
                                                     # Checking the streamed stdout of the job
                                                     time_job_start    = 0
+                                                    jobruntime    = 0
                                                     time_ana_start    = 0
                                                     time_first_event  = 0
                                                     time_latest_event = 0
@@ -989,38 +1021,57 @@ def analysis(ana_arguments, last_known_status, last_condor_jobid, nproc):
                                                                 #report_nps  = float(line.split()[9])
                                                                 # The streamed output is sometimes messed up (endline missing)
                                                                 # So we look from the end of the column and count back
-                                                                time_latest_event = int(line.split()[-9])
-                                                                nevt = float(line.split()[-5])
-                                                                report_nps  = float(line.split()[-1])
+                                                                #time_latest_event = int(line.split()[-9])
+                                                                #nevt = float(line.split()[-5])
+                                                                #report_nps  = float(line.split()[-1])
+                                                                if len(line.split()) >= 9:
+                                                                    time = line.split()[-9]
+                                                                    if time.isdigit():
+                                                                        time_latest_event = int(line.split()[-9])
+                                                                    else:
+                                                                        time_latest_event = 0
+                                                                else:
+                                                                    time_latest_event = 0
+                                                                #if len(line.split()) >= 5:
+                                                                #else:
+                                                                try:
+                                                                    nevt = float(line.split()[-5])
+                                                                except ValueError:
+                                                                    nevt = float(0)
+                                                                try:
+                                                                    report_nps = float(line.split()[-1])
+                                                                except ValueError:
+                                                                    report_nps = float(0)
                                                             if "failed to read the file type data" in line and "cms-xrd-global.cern.ch" in line:
                                                                 badfile = line.split()[3]
                                                     if badfile != "":
-                                                        print "Unaccessible file found:"
-                                                        print badfile
+                                                        print("Unaccessible file found:")
+                                                        print(badfile)
                                                     if time_job_start == 0:
-                                                        print "UnixTime-JobStart not found in: "+output_stdout
+                                                        print(("UnixTime-JobStart not found in: "+output_stdout))
                                                         special_call(["rm", "-rf", output_stdout], opt.run)
                                                         #sys.exit()
                                                     else:
+                                                        import time
                                                         jobruntime =  int(time.time()) - time_job_start
-                                                    if jobruntime <= target_time/4.0:
+                                                    if jobruntime <= target_time:
                                                         if time_first_event == 0:
-                                                            print "First processed event does not appear after a long runtime"
-                                                            print "runtime: "+str(runtime)
-                                                            print "jobruntime: "+str(jobruntime)
-                                                            print "Check log: "+os.path.basename(output_stdout)
-                                                            special_call(["cp", "-p", output_stdout, "."], opt.run, 0)
+                                                            print("First processed event does not appear after a long runtime")
+                                                            print(("runtime: "+str(runtime)))
+                                                            print(("jobruntime: "+str(jobruntime)))
+                                                            print(("Check log: "+os.path.basename(output_stdout)))
+                                                            #special_call(["cp", "-p", output_stdout, "."], opt.run, 0)
                                                     else:
                                                         time_to_start = time_first_event - time_job_start
                                                         # This should not take longer than 30 minutes
                                                         if time_to_start > 1800 and nevt == 0:
-                                                            print "Job below seems to take too long to start"
-                                                            print "- Jobid:            "+jobid
-                                                            print "- submission:       "+str(subtime)
-                                                            print "- job start:        "+str(starttime)
-                                                            print "- first event:      "+str(time_first_event)
-                                                            print "- time to start:    "+str(time_to_start)
-                                                            print
+                                                            print("Job below seems to take too long to start")
+                                                            print(("- Jobid:            "+jobid))
+                                                            print(("- submission:       "+str(subtime)))
+                                                            print(("- job start:        "+str(starttime)))
+                                                            print(("- first event:      "+str(time_first_event)))
+                                                            print(("- time to start:    "+str(time_to_start)))
+                                                            print()
                                                             submit_job = 6
                                                         # Check the speed of the running job and identify stuck or too slow ones
                                                         # The target average Nevt/s is known from previous runs
@@ -1033,51 +1084,51 @@ def analysis(ana_arguments, last_known_status, last_condor_jobid, nproc):
                                                             else:
                                                                 nps = nevt / (time.time() - starttime)
                                                             if report_nps * maxratio < target_nps:
-                                                                print "Job below progresses too slowly (high batch load, bad server?)"
-                                                                print "- Jobid:            "+jobid
-                                                                print "- submission:       "+str(subtime)
-                                                                print "- job start:        "+str(starttime)
-                                                                print "- first event:      "+str(time_first_event)
-                                                                print "- latest time:      "+str(time_latest_event)
-                                                                print "- time to start:    "+str(time_to_start)
-                                                                print "- reported nps:     "+str(report_nps)
-                                                                print "- tartget_nps:      "+str(target_nps)
-                                                                print
+                                                                print("Job below progresses too slowly (high batch load, bad server?)")
+                                                                print(("- Jobid:            "+jobid))
+                                                                print(("- submission:       "+str(subtime)))
+                                                                print(("- job start:        "+str(starttime)))
+                                                                print(("- first event:      "+str(time_first_event)))
+                                                                print(("- latest time:      "+str(time_latest_event)))
+                                                                print(("- time to start:    "+str(time_to_start)))
+                                                                print(("- reported nps:     "+str(report_nps)))
+                                                                print(("- tartget_nps:      "+str(target_nps)))
+                                                                print()
                                                                 submit_job = 7
                                                             elif nps * maxratio < target_nps:
                                                                 # Job may report an adequate read speed, but still be stuck later on
                                                                 # and cause the average nps to fall below the expected threshold
-                                                                print "Job below seems to be stuck"
-                                                                print "- Jobid:            "+jobid
-                                                                print "- submission:       "+str(subtime)
-                                                                print "- job start:        "+str(starttime)
-                                                                print "- first event:      "+str(time_first_event)
-                                                                print "- latest time:      "+str(time_latest_event)
-                                                                print "- time to start:    "+str(time_to_start)
-                                                                print "- average nps:      "+str(nps)
-                                                                print "- tartget_nps:      "+str(target_nps)
-                                                                print
+                                                                print("Job below seems to be stuck")
+                                                                print(("- Jobid:            "+jobid))
+                                                                print(("- submission:       "+str(subtime)))
+                                                                print(("- job start:        "+str(starttime)))
+                                                                print(("- first event:      "+str(time_first_event)))
+                                                                print(("- latest time:      "+str(time_latest_event)))
+                                                                print(("- time to start:    "+str(time_to_start)))
+                                                                print(("- average nps:      "+str(nps)))
+                                                                print(("- tartget_nps:      "+str(target_nps)))
+                                                                print()
                                                                 submit_job = 8
                                                         elif time_first_event > 0:
                                                             # Most jobs should return a timestamp other than the first event within an hour
                                                             # except if the job is stuck (some remote file open/read issue)
                                                             time_to_start = time_first_event - starttime
                                                             time_stuck    = int(time.time()) - time_first_event
-                                                            print "Job below seems to be stuck at the first event"
-                                                            print "- Jobid:            "+jobid
-                                                            print "- submission:       "+str(subtime)
-                                                            print "- job start:        "+str(starttime)
-                                                            print "- first event:      "+str(time_first_event)
-                                                            print "- current time:     "+str(int(time.time()))
-                                                            print "- time to start:    "+str(time_to_start)
-                                                            print "- time stuck:       "+str(time_stuck)
-                                                            print
+                                                            print("Job below seems to be stuck at the first event")
+                                                            print(("- Jobid:            "+jobid))
+                                                            print(("- submission:       "+str(subtime)))
+                                                            print(("- job start:        "+str(starttime)))
+                                                            print(("- first event:      "+str(time_first_event)))
+                                                            print(("- current time:     "+str(int(time.time()))))
+                                                            print(("- time to start:    "+str(time_to_start)))
+                                                            print(("- time stuck:       "+str(time_stuck)))
+                                                            print()
                                                             submit_job = 9
                                                         else:
-                                                            print "Job below seems to be missing any timestamps, please check it"
-                                                            print "- Jobid:            "+jobid
-                                                            print "- stdout:           "+output_stdout
-                                                            print
+                                                            print("Job below seems to be missing any timestamps, please check it")
+                                                            print(("- Jobid:            "+jobid))
+                                                            print(("- stdout:           "+output_stdout))
+                                                            print()
                                                     if submit_job > 0:
                                                         saved_stdout = output_stdout.replace(".out","_resub"+str(submit_job)+"_"+jobid+".out")
                                                         special_call(["mv", output_stdout, saved_stdout], opt.run)
@@ -1095,7 +1146,7 @@ def analysis(ana_arguments, last_known_status, last_condor_jobid, nproc):
                                             #else:
                                             #    status = lines[1].split()[2]
                                             #    if status == 'PEND' or status == 'RUN':
-                                            #        print "Job "+jobname+" is pending/running"
+                                            #        print("Job "+jobname+" is pending/running"
                                         os.remove(TMPDIR+'jobstatus_'+jobname+'.txt')
                                         last_known_status[jobindex] = int(time.time())
                         else:
@@ -1121,27 +1172,27 @@ def analysis(ana_arguments, last_known_status, last_condor_jobid, nproc):
                             nfinished += 1
                             output_files.append(output_file)
                             last_known_status[jobindex] = 0
-                            #print output_file+" - OK!"
+                            #print(output_file+" - OK!"
                     else:
                         # Job needs to be submitted to batch
                         if submit_job > 1:
                             # Indicate that the job needs to be resubmitted
                             if submit_job == 2:
-                                print "Job["+str(jobindex)+"] output "+output_file+" is missing, resubmitting ..."
+                                print(("Job["+str(jobindex)+"] output "+output_file+" is missing, resubmitting ..."))
                             elif submit_job == 3:
-                                print "Job["+str(jobindex)+"] output "+output_file+" failed file checks: file_size = "+str(file_size)+", resubmitting ..."
+                                print(("Job["+str(jobindex)+"] output "+output_file+" failed file checks: file_size = "+str(file_size)+", resubmitting ..."))
                             elif submit_job == 4:
-                                print "Job["+str(jobindex)+"] output "+output_file+" failed file checks: input_count = "+str(input_count)+" output_count = "+str(output_count)+" resubmitting ..."
+                                print(("Job["+str(jobindex)+"] output "+output_file+" failed file checks: input_count = "+str(input_count)+" output_count = "+str(output_count)+" resubmitting ..."))
                             elif submit_job == 5:
-                                print "Job["+str(jobindex)+"] output "+output_file+" failed speed check: Job still running after twice the expected run time, resubmitting ..."
+                                print(("Job["+str(jobindex)+"] output "+output_file+" failed speed check: Job still running after twice the expected run time, resubmitting ..."))
                             elif submit_job == 6:
-                                print "Job["+str(jobindex)+"] output "+output_file+" It took more than 30 minutes (time_to_start = "+str(time_to_start)+") to reach first event , resubmitting ..."
+                                print(("Job["+str(jobindex)+"] output "+output_file+" It took more than 30 minutes (time_to_start = "+str(time_to_start)+") to reach first event , resubmitting ..."))
                             elif submit_job == 7:
-                                print "Job["+str(jobindex)+"] output "+output_file+" is too slow (report_nps = "+str(report_nps)+", target_nps = "+str(target_nps)+"), resubmitting ..."
+                                print(("Job["+str(jobindex)+"] output "+output_file+" is too slow (report_nps = "+str(report_nps)+", target_nps = "+str(target_nps)+"), resubmitting ..."))
                             elif submit_job == 8:
-                                print "Job["+str(jobindex)+"] output "+output_file+" seems stuck after first event (nevt = "+str(nevt)+", nps= "+str(nps)+", target_nps = "+str(target_nps)+"), resubmitting ..."
+                                print(("Job["+str(jobindex)+"] output "+output_file+" seems stuck after first event (nevt = "+str(nevt)+", nps= "+str(nps)+", target_nps = "+str(target_nps)+"), resubmitting ..."))
                             elif submit_job == 9:
-                                print "Job["+str(jobindex)+"] output "+output_file+" is stuck at first event (time_stuck = "+str(time_stuck)+"), resubmitting ..."
+                                print(("Job["+str(jobindex)+"] output "+output_file+" is stuck at first event (time_stuck = "+str(time_stuck)+"), resubmitting ..."))
                             if os.path.isfile(output_file): os.remove(output_file)
                         if submit_job>1:
                             nresub += 1
@@ -1158,35 +1209,37 @@ def analysis(ana_arguments, last_known_status, last_condor_jobid, nproc):
             # 3) condor job submission step (done in a single batch)
             if ncondor > 0:
                 if nresub>njob/10 and njob>10:
-                    print
-                    print
-                    print "Too large fraction of jobs need to be resubmitted, nresub="+str(nresub)+", 10% threshold="+str(njob/10)
-                    print "Please check why so many job failed!"
-                    print "if needed do an --update, and then --recover"
-                    print "Aborting ..."
+                    print()
+                    print()
+                    print(("Too large fraction of jobs need to be resubmitted, nresub="+str(nresub)+", 10% threshold="+str(njob/10)))
+                    print("Please check why so many job failed!")
+                    print("if needed do an --update, and then --recover")
+                    print("Aborting ...")
                     sys.exit()
                 else:
-                    print str(ncondor)+" jobs are being submitted to HTCondor ..."
+                    print((str(ncondor)+" jobs are being submitted to HTCondor ..."))
                     for joblist in glob.glob(opt.OUTDIR+"/log/condor_joblist_??.txt"):
                         batch_number += 1
                         site = joblist.split("_")[-1].replace(".txt","")
                         joblist_to_submit = joblist.replace("condor_joblist","condor_joblist_"+str(batch_number))
                         special_call(["mv", joblist, joblist_to_submit], opt.run)
                         njobcondor = sum(1 for line in open(joblist_to_submit))
-                        print "Submitting jobs to "+site+" sites ..."
+                        print(("Submitting jobs to "+site+" sites ..."))
                         # Send task to condor and get the ClusterId
                         clusterid = ""
                         latest_log_file = opt.OUTDIR+"/log/condor_task_"+str(batch_number)+".log"
                         submittime = int(time.time())
+                        print(joblist_to_submit)
                         logged_call(["condor/submit_condor_task.sh", site, opt.OUTDIR+"/sandbox-BoostAnalyzer17.tar", joblist_to_submit], latest_log_file, opt.run)
+                        #logged_call(["condor/submit_condor_task.sh", site, "sandbox-BoostAnalyzer17.tar", joblist_to_submit], latest_log_file, opt.run)
                         with open(latest_log_file) as latest_log:
                             for line in latest_log.readlines():
                                 if "submitted to cluster" in line:
                                     clusterid = line.split()[-1].replace(".","")
                                     cluster_ids.append(clusterid)
                         if clusterid == "":
-                            print "ERROR: Latest HTCondor submission failed, please check the log file:"
-                            print opt.OUTDIR+"/log/condor_task_"+str(batch_number)+".log"
+                            print("ERROR: Latest HTCondor submission failed, please check the log file:")
+                            print((opt.OUTDIR+"/log/condor_task_"+str(batch_number)+".log"))
                             sys.exit()
                         # Actualize job submission time and jobids
                         newjobindex = 0
@@ -1195,15 +1248,15 @@ def analysis(ana_arguments, last_known_status, last_condor_jobid, nproc):
                                 last_known_status[ijob] = submittime
                                 last_condor_jobid[ijob] = clusterid+"."+str(newjobindex)
                                 newjobindex += 1
-                        print "Successfully submitted "+str(njobcondor)+" job(s)"
-                        print "Latest ClusterId: "+clusterid
+                        print(("Successfully submitted "+str(njobcondor)+" job(s)"))
+                        print(("Latest ClusterId: "+clusterid))
             
             # 4) Merge output files if all jobs in a sample are ready
             if not opt.nohadd:
                 merge_output(ana_arguments, last_known_status)
             
             # 5) Print batch status
-            print "Analyzer jobs on batch (Done/All): "+str(nfinished)+"/"+str(njob)+"   \r",
+            print(("Analyzer jobs on batch (Done/All): "+str(nfinished)+"/"+str(njob)+"   \r",))
             sys.stdout.flush()
             
             # 6) Check if final output file is ready
@@ -1215,38 +1268,38 @@ def analysis(ana_arguments, last_known_status, last_condor_jobid, nproc):
             # 7) Sleep 10 minutes between condor job check iterations
             if not finished and opt.condor:
                 cycletime = time.time()-cyclestarttime
-                if cycletime<300:
-                    time.sleep(int(300-cycletime))
+                if cycletime<600:
+                    time.sleep(int(600-cycletime))
         
     else:
         # Local analysis jobs
-        print "Running "+str(njob)+" instances of Analyzer jobs:"
-        print
+        print(("Running "+str(njob)+" instances of Analyzer jobs:"))
+        print()
         # Use the N CPUs in parallel on the current computer to analyze all jobs
         workers = multiprocessing.Pool(processes=nproc)
-        output_files = workers.map(analyzer_job, range(njob), chunksize=1)
+        output_files = workers.map(analyzer_job, list(range(njob)), chunksize=1)
         workers.close()
         workers.join()
         last_known_status = [0] * njob
-        print "All Analyzer jobs finished."
+        print("All Analyzer jobs finished.")
         if not opt.nohadd:
             merge_output(ana_arguments, last_known_status)
     
-    print
+    print()
     return output_files
 
 # Run Plotter, output of Analyzer is input for this code
 def plotter(input_files, output_file):
     global opt, EXEC_PATH
-    print "Start plotting from output files"
-    print
+    print("Start plotting from output files")
+    print()
     special_call([EXEC_PATH+"/Plotter", output_file] + input_files, opt.run)
-    print "Plotting finished."
-    print
+    print("Plotting finished.")
+    print()
 
 def show_result(plotter_out):
-    print "Showing the result in root: "
-    print
+    print("Showing the result in root: ")
+    print()
     special_call(["root", "-l", 'scripts/show_result.C("'+plotter_out+'")'], opt.run)
 
 # ---------------------- Running -------------------------
@@ -1272,4 +1325,4 @@ else:
         #if not 'lxplus' in socket.gethostname():
         #    show_result(PLOTTER_OUT)
 
-print "Done."
+print("Done.")

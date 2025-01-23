@@ -15,4 +15,4 @@ elif [[ $region == "hadd" ]]; then
     sed "s;INPUT;$input;;s;OUTPUT;$output;;s;LOGOUT;$logout;;" condor/condor_task_template_hadd.cfg > tmp.cfg
 fi
 condor_submit tmp.cfg
-rm tmp.cfg
+#rm tmp.cfg

@@ -54,7 +54,7 @@ BTagEntry::BTagEntry(const std::string &csvLine)
 	}
   if (vec.size() != 11) {
   //if (vec.size() <= 10) {
-					for(int i=0;i<vec.size();++i) cout << i << ", " << vec[i] << ", " << endl;
+					for(int i=0;i<vec.size();++i) std::cout << i << ", " << vec[i] << ", " << std::endl;
 std::cerr << "ERROR in BTagCalibration: "
           << "Invalid csv line; num tokens != 11: "
           << csvLine << "  " 

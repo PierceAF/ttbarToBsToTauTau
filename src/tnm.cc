@@ -525,6 +525,8 @@ void geteff2D(TH2* h, double x, double y, double& eff, double& err)
   if (biny>h->GetNbinsY()) biny = h->GetNbinsY();
   eff = h->GetBinContent(binx, biny);
   err = h->GetBinError  (binx, biny);
+	if (std::isnan(eff)) eff = 0;
+	if (std::isnan(err)) err = 0;
 }
 
 TH1D* getplot_TH1D(const char* filename, const char* histoname, const char* clonename) {

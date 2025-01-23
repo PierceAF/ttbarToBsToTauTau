@@ -37,7 +37,6 @@ int main(int argc, char** argv) {
   // List names in filenames from which the code can decide if it is data or signal
   // For the rest it's assumed it's background MC
   // if .txt file is given as input then from the directory name we can already tell
-  //std::vector<std::string> vname_data = { "Run2015", "Run2016", "Run2017", "Run2018" };
   std::vector<std::string> vname_data = { "JetHT", "SingleMuon", "SingleElectron", "MET", "SinglePhoton", "HTMHT", "EGamma", "Run2016", "Run2017", "Run2018"};
   std::vector<std::string> vname_signal = { "ttbarToBsToTauTau" };
 
@@ -142,8 +141,8 @@ int main(int argc, char** argv) {
     std::vector<double> nSigmaTrigger     = std::vector<double>(1,0);
     std::vector<double> nSigmaJES         = std::vector<double>(1,0);
     std::vector<double> nSigmaJER         = std::vector<double>(1,0);
-    //std::vector<double> nSigmaRestMET     = std::vector<double>(1,0);
-    //std::vector<double> nSigmaRescaleAK8  = std::vector<double>(1,0);
+    std::vector<double> nSigmaJESAPV     = std::vector<double>(1,0);
+    std::vector<double> nSigmaJERAPV  = std::vector<double>(1,0);
     std::vector<std::vector<double> > nSigmaSFs = 
       std::vector<std::vector<double> >(settings.nSigmaScaleFactors, std::vector<double>(1,0));
     std::vector<unsigned int> numScale    = std::vector<unsigned int>(1,0);
@@ -176,8 +175,8 @@ int main(int argc, char** argv) {
       nth_line>>dbl; syst.nSigmaTrigger.push_back(dbl);
       nth_line>>dbl; syst.nSigmaJES.push_back(dbl);
       nth_line>>dbl; syst.nSigmaJER.push_back(dbl);
-      //nth_line>>dbl; syst.nSigmaRestMET.push_back(dbl);
-      //nth_line>>dbl; syst.nSigmaRescaleAK8.push_back(dbl);
+      nth_line>>dbl; syst.nSigmaJESAPV.push_back(dbl);
+      nth_line>>dbl; syst.nSigmaJERAPV.push_back(dbl);
       for (int i=0; i<settings.nSigmaScaleFactors; ++i) {
         nth_line>>dbl; syst.nSigmaSFs[i].push_back(dbl);
       }
@@ -364,9 +363,6 @@ int main(int argc, char** argv) {
   } else std::cout<<"doPileupReweighting (settings): false"<<std::endl;
   if (debug) std::cout<<"Analyzer::main: init_pileup_reweighting ok"<<std::endl;
 
-  // Scale QCD to match data in a QCD dominated region
-  //std::cout<<"scaleQCD (settings): "<<( settings.scaleQCD ? "true" : "false" )<<std::endl;
-
   // AK8 Jet Pt rescaling
   std::cout<<"doAK8JetPtRescaling (settings): "<<( settings.doAK8JetPtRescaling ? "true" : "false" )<<std::endl;
 
@@ -478,8 +474,6 @@ int main(int argc, char** argv) {
   std::cout<<"ifirst="<<ifirst<<std::endl;
   std::cout<<"ilast="<<ilast<<std::endl;
   std::cout<<std::endl;
-	//int tmp;
-	//double tmp2;
   for(int entry=ifirst; entry<ilast; entry++) {
 
     if (sigint) ilast = entry+1; // set this as the last event and terminate program normally
@@ -600,7 +594,6 @@ int main(int argc, char** argv) {
         // Loop and vary systematics
         for (syst.index = 0; syst.index <= (settings.varySystematics ? syst.nSyst : 0); ++syst.index) {
 
-					//tmp = syst.index;
 					//syst.index = 0;
           w = 1;
 
@@ -621,17 +614,9 @@ int main(int argc, char** argv) {
           if (debug) sw(sw_w0, t_w0, 0);
 
           if (debug) sw(sw_c, t_c, 1);
-          // AK8 jet pt reweighting for madgraph Z/gamma samples
-          bool rescaleAK8 = 0;
-          if (settings.doAK8JetPtRescaling) {
-            if (samplename.Contains("ZJetsToNuNu")||samplename.Contains("DYJetsToLL")||samplename.Contains("GJets_HT")) { 
-              rescaleAK8 = 1;
-            }
-          }
           // Scale and Smear Jets and MET
-          //v.rescale_smear_jet_met(settings.applySmearing, syst.index, syst.nSigmaJES[syst.index],
-          //                        syst.nSigmaJER[syst.index]);
-          //if (debug>1) std::cout<<"Analyzer::main: rescale_smear_jet_met ok"<<std::endl;
+          v.rescale_smear_jet_met(settings.applySmearing, syst.index, syst.nSigmaJES[syst.index], syst.nSigmaJER[syst.index], syst.nSigmaJESAPV[syst.index], syst.nSigmaJERAPV[syst.index]);
+          if (debug>1) std::cout<<"Analyzer::main: rescale_smear_jet_met ok"<<std::endl;
           
           // Calculate variables that do not exist in the ntuple
           // But first decide if we need to recaulculate them
@@ -644,20 +629,16 @@ int main(int argc, char** argv) {
             //if ((syst.nSigmaJES[syst.index-1]!=0 || syst.nSigmaJER[syst.index-1]!=0) && !v.recalc_jets) v.recalc_jets = 2;
           	//v.recalc_met      = v.recalc_jets;
             //if (!v.recalc_met) v.recalc_met = 2;
-						v.recalc_jets = (syst.index == 17 || syst.index == 18 || syst.index == 19 || syst.index == 20 || syst.index == 21);
+						v.recalc_jets = (syst.index == 17 || syst.index == 18 || syst.index == 19 || syst.index == 20 || syst.index == 21 || syst.index == 22 || syst.index == 23 || syst.index == 24 || syst.index == 25);
           }
 
           if (debug) sw(sw_w1, t_w1, 1);
           //if (syst.index==0 || v.recalc_jets!=0) v.define_jet_variables(syst.index);
-          //if (tmp==0) v.define_lepton_and_photon_variables();
-          //if (tmp==0) v.define_jet_variables(syst.index);
-          //if (tmp==0) v.define_genparticle_variables();
           if (syst.index==0) v.define_lepton_and_photon_variables();
           if (syst.index==0) v.define_jet_variables(syst.index);
           if (syst.index==0) v.define_genparticle_variables();
           if (debug) sw(sw_e, t_e, 1);
 					if (syst.index==0) v.define_event_variables(syst.index);
-					//if (tmp==0) v.define_event_variables(syst.index);
 					//if (syst.index==0 || v.recalc_jets!=0) v.define_event_variables(syst.index);
           if (debug>1) std::cout<<"Analyzer::main: calculating variables ok"<<std::endl;
           if (debug) sw(sw_e, t_e, 0);
@@ -700,21 +681,17 @@ int main(int argc, char** argv) {
           // Theory weights
           // LHE weight variations
           // Alpha_s variations (not available in NanoAOD)
-          //w *= (ana.weighting.all_weights[5] = ana.weighting.get_alphas_weight(syst.nSigmaAlphaS[syst.index], 0));
-          w *= (ana.weighting.all_weights[5] = 1);
+          w *= (ana.weighting.all_weights[5] = ana.weighting.get_alphas_weight(syst.nSigmaAlphaS[syst.index], 0));
           if (syst.index==0) ofile->count("w_alphas", w);
-          //if (debug==-1) std::cout<<" alpha_s = "<<ana.get_alphas_weight(syst.nSigmaAlphaS[syst.index], ev.evt.LHA_PDF_ID);
           if (debug>1) std::cout<<"Analyzer::main: apply alphas weight ok"<<std::endl;
           
           // Scale variations
           // A set of six weights, unphysical combinations excluded
           // If numScale=0 is specified, not doing any weighting
           if (debug) sw(sw_w5, t_w5, 1);
-          if ( syst.numScale[syst.index] >= 1 && syst.numScale[syst.index] <= 3 )
-            //w *= (ana.weighting.all_weights[6] = ana.weighting.get_scale_weight(scale_weight_norm, syst.nSigmaScale[syst.index], syst.numScale[syst.index]));
-            w *= (ana.weighting.all_weights[6] = ana.weighting.get_scale_weight(syst.nSigmaScale[syst.index], syst.numScale[syst.index]));
+          //if ( syst.numScale[syst.index] >= 1 && syst.numScale[syst.index] <= 3 )
+          w *= (ana.weighting.all_weights[6] = ana.weighting.get_scale_weight(syst.nSigmaScale[syst.index], syst.numScale[syst.index]));
           if (syst.index==0) ofile->count("w_scale", w);
-          //if (debug==-1) std::cout<<" scale = "<<ana.weighting.get_scale_weight(scale_weight_norm, syst.nSigmaScale[syst.index], syst.numScale[syst.index])<<" w="<<w;
           if (debug==-1) std::cout<<" scale = "<<ana.weighting.get_scale_weight(syst.nSigmaScale[syst.index], syst.numScale[syst.index])<<" w="<<w;
           if (debug) sw(sw_w5, t_w5, 0);
           
@@ -729,16 +706,6 @@ int main(int argc, char** argv) {
           }
           if (syst.index==0) ofile->count("w_pdf", w);
           if (debug>1) std::cout<<"Analyzer::main: apply pdf weight ok"<<std::endl;
-          
-          // Scale QCD to match data in QCD dominated region
-          //  if (samplename.Contains("QCD")) {
-          //    // Scale factor
-          //    // value obtained with ROOT macro: scripts/CalcQCDNormFactor.C
-          //    if (settings.scaleQCD)
-          //      w *= settings.useJSON ? 0.776458 : 0.785087; // Golden/Silver JSON
-          //  
-          //  }
-          //  if (debug>1) std::cout<<"Analyzer::main: apply special weights ok"<<std::endl;
           
           if (debug) sw(sw_c, t_c, 0);
           // Lost Lepton Systematics
@@ -757,7 +724,6 @@ int main(int argc, char** argv) {
           if (debug>1) std::cout<<"Analyzer::main: apply trigger weight ok"<<std::endl;
           if (debug) sw(sw_w7, t_w7, 0);
           
-					//syst.index = tmp;
           // Apply Object Scale Factors
           if (debug) sw(sw_s, t_s, 1);
           for (auto& sf_w : ana.weighting.sf_weight) sf_w = w;
@@ -832,10 +798,6 @@ int main(int argc, char** argv) {
             if (debug==-1) std::cout<<"  w = "<<w<<std::endl;
             if (debug) sw(sw_f, t_f, 0);
           }
-					//syst.index = tmp;
-					//if(syst.index == 0) tmp2 = w;
-					//else if (abs(tmp2-w)/tmp2 > 0.1) std::cout << entry << ": " << syst.index << ", " << tmp2 << ", " << w << std::endl;
-					//else if (syst.index > 40 && tmp2!=w) std::cout << entry << ": " << syst.index << ", " << tmp2 << ", " << std::endl;
         } // end systematics loop
         //cout << endl;
       } // end not skimming

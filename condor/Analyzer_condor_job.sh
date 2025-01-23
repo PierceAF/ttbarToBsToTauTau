@@ -2,7 +2,6 @@
 echo   "UnixTime-JobStart: "$(date +%s)
 
 arch=slc7_amd64_gcc700
-#rel=CMSSW_10_6_27
 rel=CMSSW_10_2_16_UL
 sandbox=$(ls sandbox*.tar)
 arguments=${@:1}
@@ -19,6 +18,7 @@ echo -e "---------------- Environments ----------------"
 
 echo -e "\n[0] source /cvmfs/cms.cern.ch/cmsset_default.sh"
 source /cvmfs/cms.cern.ch/cmsset_default.sh
+singularity exec --contain /cvmfs/unpacked.cern.ch/registry.hub.docker.com/cmssw/cc7:amd64 bash
 
 echo -e "\n[1] export SCRAM_ARCH=$arch"
 #export SCRAM_ARCH=$arch
@@ -38,6 +38,10 @@ eval `scramv1 runtime -sh`
 
 echo -e "\n[6] source setup.sh"
 source setup.sh
+
+echo -e "\n[6] source setup.sh"
+make -Bj 6 Analyzer
+make -Bj 6 Plotter
 
 echo -e "\n--------------- Filelist check ---------------"
 
