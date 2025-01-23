@@ -1,10 +1,12 @@
 ## Installation
-- This analysis framework requires only ROOT, gcc (you don't need to set up CMSSW but need to check ROOT version dependency), You need singularity if you're system's OS is Alma9
+- This analysis framework requires only ROOT and GCC (you don't need to set up CMSSW but need to check ROOT version dependency), You need singularity if you're system's OS is Alma9
 - ```cmssw-el7```
 - ```cmsrel CMSSW_10_2_16_UL```
 - ```cd CMSSW_10_2_16_UL/src```
 - ```cmsenv```
 - ```git clone git@github.com:cghuh/ttbarToBsToTauTau.git```
+
+Run outside of singularity
 - ```python3 condor/setup.py```
 
 
