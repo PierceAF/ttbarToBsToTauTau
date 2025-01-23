@@ -78,9 +78,6 @@ public:
     scale_factors[Region::Pre_2Lep].push_back(&sf_muon_medium);
     scale_factors[Region::Pre_2Lep].push_back(&sf_btag_medium);
 
-    scale_factors[Region::Pre_Had].push_back(&sf_ele_veto);
-    scale_factors[Region::Pre_Had].push_back(&sf_muon_veto);
-    scale_factors[Region::Pre_Had].push_back(&sf_btag_medium);
   }
   ~ScaleFactors() {
     if (debug) {

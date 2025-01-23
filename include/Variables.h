@@ -80,7 +80,7 @@
 
 */
 
-#define ELE_VETO_PT_CUT        5
+#define ELE_VETO_PT_CUT        25
 #define ELE_VETO_ETA_CUT       2.5
 #define ELE_VETO_MINIISO_CUT   0.4
 #define ELE_VETO_IP_D0_CUT     0.05
@@ -88,13 +88,13 @@
 #define ELE_VETO_IP_3D_CUT     4   // For skim only
 #define ELE_VETO_ABSISO_CUT    5   // For skim only
 
-#define ELE_SELECT_PT_CUT      10
+#define ELE_SELECT_PT_CUT      25
 #define ELE_SELECT_ETA_CUT     2.5
 #define ELE_SELECT_MINIISO_CUT 0.1
 #define ELE_SELECT_IP_D0_CUT   0.05
 #define ELE_SELECT_IP_DZ_CUT   0.1
 
-#define ELE_TIGHT_PT_CUT       30
+#define ELE_TIGHT_PT_CUT       25
 #define ELE_TIGHT_ETA_CUT      2.5
 #define ELE_TIGHT_IP_D0_CUT    0.05
 #define ELE_TIGHT_IP_DZ_CUT    0.1
@@ -143,7 +143,7 @@
 
 */
 
-#define MU_VETO_PT_CUT         5
+#define MU_VETO_PT_CUT         25
 #define MU_VETO_ETA_CUT        2.4
 #define MU_VETO_MINIISO_CUT    0.4
 #define MU_VETO_IP_D0_CUT      0.2
@@ -151,13 +151,13 @@
 #define MU_VETO_ABSISO_CUT     10  // For skim only
 #define MU_VETO_IP_3D_CUT      4   // For skim only
 
-#define MU_SELECT_PT_CUT       10
+#define MU_SELECT_PT_CUT       25
 #define MU_SELECT_ETA_CUT      2.4
 #define MU_SELECT_MINIISO_CUT  0.2
 #define MU_SELECT_IP_D0_CUT    0.05
 #define MU_SELECT_IP_DZ_CUT    0.1
 
-#define MU_TIGHT_PT_CUT        30
+#define MU_TIGHT_PT_CUT        25
 #define MU_TIGHT_ETA_CUT       2.4
 #define MU_TIGHT_RELISO_CUT    0.15
 #define MU_TIGHT_IP_D0_CUT     0.05

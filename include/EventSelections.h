@@ -33,7 +33,6 @@ public:
 
   enum Regions : size_t {
     Pre_1Lep,
-    Pre_Had,
     Pre_2Lep,
 		Pre_1Lep_MT,
     
@@ -372,28 +371,22 @@ EventSelections::define_event_selections()
     { .name="NJetPre",    .func = [this] { return v.Jet.Jet.n>=4;              }},
     { .name="1Lep",       .func = [this] { return v.nLepSelect==1;             }},
     { .name="HLT",        .func =                leptonic_triggers              },
-    { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;            }},
+    { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;       }},
   };
   analysis_cuts[Region::Pre_2Lep] = {
-    { .name="NJetPre",    .func = [this] { return v.Jet.Jet.n>=4;              }},
-    { .name="1Lep",       .func = [this] { return v.nLepSelect==2;             }},
+    { .name="NJetPre",    .func = [this] { return v.Jet.Jet.n>=2;              }},
+    { .name="2Lep",       .func = [this] { return v.nLepSelect==2;             }},
     { .name="HLT",        .func =                leptonic_triggers              },
-    { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;            }},
+    { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;       }},
+    { .name="Mll",        .func = [this] { return v.M_2l>20&&!(v.M_2l> 76&&v.M_2l<106);}},
+    { .name="MET",        .func = [this] { return v.MET_pt>40;                 }},
   };
-  // Preselection hadronic regions
-  analysis_cuts[Region::Pre_Had] = {
-    { .name="NJetPre",    .func = [this] { return v.Jet.Jet.n>=6;              }},
-    { .name="1Lep",       .func = [this] { return v.nLepVeto==0;             }},
-    { .name="HLT",        .func =                hadronic_triggers              },
-    { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;            }},
-  };
-  // Preselection leptonic regions
   analysis_cuts[Region::Pre_1Lep_MT] = {
     { .name="NJetPre",    .func = [this] { return v.Jet.Jet.n>=4;              }},
     { .name="1Lep",       .func = [this] { return v.nLepSelect==1;             }},
     { .name="HLT",        .func =                leptonic_triggers              },
-    { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;            }},
-    { .name="MT",         .func = [this] { return v.MT>=80;                   }},
+    { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;       }},
+    { .name="MT",         .func = [this] { return v.MT>=80;                    }},
   };
 
 }

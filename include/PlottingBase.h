@@ -1041,7 +1041,6 @@ legname["1Pho"]        = "N#gamma=1";
 std::map<Region, std::string> regionname;
 regionname[Region::Pre_1Lep]          = "Semi-Leptonic Baseline selection";
 regionname[Region::Pre_2Lep]          = "Di-Leptonic Baseline selection";
-regionname[Region::Pre_Had]          = "Hadronic Baseline selection";
 regionname[Region::Pre_1Lep_MT]     = "Semi-Leptonic Baseline selection + MT";
 if (debug) std::cout<<"PlottingBase::define_histo_settings: region names ok"<<std::endl;
 
