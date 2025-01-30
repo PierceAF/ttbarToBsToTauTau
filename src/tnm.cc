@@ -241,6 +241,7 @@ commandLine::decode(int argc, char** argv, std::vector<std::string>& vname_data,
           bool found = false;
           for (auto data : vname_data) if (!found&&std::string(arg).find(data)!=std::string::npos) { 
             n_data_arg++;
+						std::cout << n_data_arg << std::endl;
             found=1;
           }
           for (auto signal : vname_signal) if (!found&&std::string(arg).find(signal)!=std::string::npos) { 
@@ -278,7 +279,7 @@ commandLine::decode(int argc, char** argv, std::vector<std::string>& vname_data,
           if (vsubdirs[i].find("PU")!=0&&
               vsubdirs[i].find("NANOAOD")!=0&&
               vsubdirs[i].find("Nano")!=0) {
-            if (fileNames[0].find("Razor")==std::string::npos && fileNames[0].find("/data/")!=std::string::npos)
+            if (fileNames[0].find("ttbs")==std::string::npos && fileNames[0].find("/data/")!=std::string::npos)
               dirname = vsubdirs[i]+"_"+vsubdirs[i-1];
             else
               dirname = vsubdirs[i];

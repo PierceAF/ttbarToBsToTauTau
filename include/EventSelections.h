@@ -302,44 +302,6 @@ EventSelections::define_event_selections()
   // If you change the trigger selection
   // Make sure to change also to match trigger efficiency selection in Plottingbase
   // then when new efficiency is calculated, load the new trigger efficiency in Weighting
-  std::function<bool()> hadronic_triggers;
-  if (v.sample.Contains("HTMHT")) {
-    hadronic_triggers = [this] { 
-      if (v.year==2016) return v.HLT_PFHT300_PFMET110==1;
-      else return (bool)0;
-    };
-  } else if (v.sample.Contains("MET")) {
-    hadronic_triggers = [this] { 
-      if (v.year==2016) return !(v.HLT_PFHT300_PFMET110==1) && // veto HTMHT
-        (v.HLT_PFMET110_PFMHT110_IDTight==1||v.HLT_PFMETNoMu110_PFMHTNoMu110_IDTight==1);
-      else return 
-        (v.HLT_PFMET120_PFMHT120_IDTight==1 ||
-         v.HLT_PFMET120_PFMHT120_IDTight_PFHT60==1 ||
-         v.HLT_PFMETNoMu120_PFMHTNoMu120_IDTight==1 ||
-         v.HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60==1 ||
-         v.HLT_PFHT500_PFMET100_PFMHT100_IDTight==1 || 
-         v.HLT_PFHT700_PFMET85_PFMHT85_IDTight==1 ||
-         v.HLT_PFHT800_PFMET75_PFMHT75_IDTight==1); };
-  } else if (v.sample.Contains("JetHT")) {
-    hadronic_triggers = [this] { 
-      if (v.year==2016) return 
-        !(v.HLT_PFHT300_PFMET110==1|| // veto HTMHT
-          v.HLT_PFMET110_PFMHT110_IDTight==1||v.HLT_PFMETNoMu110_PFMHTNoMu110_IDTight==1) && // veto MET
-        (v.HLT_AK8PFJet450==1||v.HLT_PFHT800==1||v.HLT_PFHT900==1);
-      else return !(v.HLT_PFMET120_PFMHT120_IDTight==1 || // veto MET
-                    v.HLT_PFMET120_PFMHT120_IDTight_PFHT60==1 ||
-                    v.HLT_PFMETNoMu120_PFMHTNoMu120_IDTight==1 ||
-                    v.HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60==1 ||
-                    v.HLT_PFHT500_PFMET100_PFMHT100_IDTight==1 || 
-                    v.HLT_PFHT700_PFMET85_PFMHT85_IDTight==1 ||
-                    v.HLT_PFHT800_PFMET75_PFMHT75_IDTight==1) &&
-        v.HLT_PFHT1050==1;
-        //(v.HLT_PFHT1050==1||v.HLT_AK8PFJet500==1); // Add this when new efficiencies ready
-      
-    };
-  } else {
-    hadronic_triggers = [this] { return !v.isData; };
-  }
 
   std::function<bool()> leptonic_triggers;
   if (v.sample.Contains("SingleElectron")||v.sample.Contains("EGamma")) {

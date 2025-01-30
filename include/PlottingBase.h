@@ -62,11 +62,6 @@ class PlottingBase
 				std::vector<int>, int, int, bool);
 
 
-
-		std::map<int, std::vector<TH2D*> > m_vh_signal;
-		std::map<int, std::vector<TH2D*> > m_vh_signal_new;
-		//std::map<int, std::vector<TH2D*> > m_vh_signal_v2;
-
 		// --------------------------------------------------------------------
 		//                       Plotting options
 		// --------------------------------------------------------------------
@@ -78,16 +73,16 @@ class PlottingBase
 		std::string O_stk_d = "LogStack1AddRatioTwoCol98Approval15";
 		std::string O_stk_s = "LogStack1AddRatioTwoCol98Approval45";
 		// Signal region stack plots (data + N signal)
-		std::string o_stk_d_S = "LogStack2AddRatioTwoCol108AddIntApproval15";
-		std::string o_stk_s_S = "LogStack7AddRatioTwoCol108AddIntApproval45";
-		std::string O_stk_d_S = "LogStack7AddRatioTwoCol108Approval15";
-		std::string O_stk_s_S = "LogStack7AddRatioTwoCol108Approval45";
-		std::string o_stk_d_T = "LogStack4AddRatioTwoCol48AddIntApproval15";
-		std::string o_stk_s_T = "LogStack4AddRatioTwoCol48AddIntApproval45";
-		std::string o_stk_d_V = "LogStack7AddRatioTwoCol78AddIntApproval15";
-		std::string o_stk_s_V = "LogStack7AddRatioTwoCol78AddIntApproval45";
-		std::string o_stk_d_H = "LogStack5AddRatioTwoCol58AddIntApproval15";
-		std::string o_stk_s_H = "LogStack5AddRatioTwoCol58AddIntApproval45";
+		std::string o_stk_d_S = "LogStack2AddRatioTwoCol108AddIntApproval45";
+		std::string o_stk_s_S = "LogStack2AddRatioTwoCol108AddIntApproval45";
+		std::string O_stk_d_S = "LogStack2AddRatioTwoCol108Approval15";
+		std::string O_stk_s_S = "LogStack2AddRatioTwoCol108Approval45";
+		std::string o_stk_d_T = "LogStack2AddRatioTwoCol48AddIntApproval15";
+		std::string o_stk_s_T = "LogStack2AddRatioTwoCol48AddIntApproval45";
+		std::string o_stk_d_V = "LogStack2AddRatioTwoCol78AddIntApproval15";
+		std::string o_stk_s_V = "LogStack2AddRatioTwoCol78AddIntApproval45";
+		std::string o_stk_d_H = "LogStack2AddRatioTwoCol58AddIntApproval15";
+		std::string o_stk_s_H = "LogStack2AddRatioTwoCol58AddIntApproval45";
 		std::string o_1or2d_d = "Approval15";
 		std::string o_1or2d_s = "Approval45";
 		std::string o_norm_d = "NormApproval15";
@@ -484,38 +479,6 @@ PlottingBase::define_histo_settings(const Weighting& w, EventSelections& evt_sel
 			"ZJetsToNuNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8",
 			"ZJetsToNuNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8",
 			"ZJetsToNuNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8" } });
-	bkg_nonttbars.push_back({ .postfix="Higgs",    .legend="H+jets", .color=Brown, .dirs={
-			// 2016/2017/2018
-			"WminusH_HToBB_WToLNu_M-125_TuneCP5_13TeV_powheg_pythia8",
-			"WminusH_HToBB_WToQQ_M-125_TuneCP5_13TeV_powheg_pythia8",
-			"WplusH_HToBB_WToLNu_M-125_TuneCP5_13TeV_powheg_pythia8",
-			"WplusH_HToBB_WToQQ_M-125_TuneCP5_13TeV_powheg_pythia8",
-			"ZH_HToBB_ZToBB_M-125_TuneCP5_13TeV-powheg-pythia8",
-			"ZH_HToBB_ZToLL_M-125_TuneCP5_13TeV_powheg_pythia8",
-			"ZH_HToBB_ZToNuNu_M-125_TuneCP5_13TeV_powheg_pythia8",
-			"ZH_HToBB_ZToQQ_M-125_TuneCP5_13TeV_powheg_pythia8",
-			"ggZH_HToBB_ZToBB_M-125_TuneCP5_13TeV-powheg-pythia8",
-			"ggZH_HToBB_ZToLL_M-125_TuneCP5_13TeV_powheg_pythia8",
-			"ggZH_HToBB_ZToNuNu_M-125_TuneCP5_13TeV_powheg_pythia8",
-			"ggZH_HToBB_ZToQQ_M-125_TuneCP5_13TeV_powheg_pythia8",
-			"ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8",
-			"ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8",
-			"ttHJetToNonbb_M125_TuneCP5_13TeV_amcatnloFXFX_madspin_pythia8",
-			"ttHJetTobb_M125_TuneCP5_13TeV_amcatnloFXFX_madspin_pythia8",
-			// 2016
-			"TTHH_TuneCP5_13TeV-amcatnlo-pythia8",
-			//"VBFHToBB_M125_13TeV_amcatnlo_pythia8",
-			"VBFHToBB_M-125_13TeV_powheg_pythia8_weightfix",
-			"VBFHToWWTo2L2Nu_M125_13TeV_powheg_JHUgenv628_pythia8",
-			"VBF_HToInvisible_M125_13TeV_powheg_pythia8",
-			"TTWH_TuneCP5_13TeV-madgraph-pythia8",
-			"TTZH_TuneCP5_13TeV-madgraph-pythia8",
-			// 2017/2018
-			"TTHH_TuneCP5_13TeV-madgraph-pythia8",
-			"VBFHToBB_M-125_TuneCP5_13TeV-powheg-pythia8",
-			"VBFHToWWTo2L2Nu_M-125_TuneCP5_13TeV-powheg-jhugen727-pythia8",
-			// 2018
-			"ZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8" } });
 	bkg_nonttbars.push_back({ .postfix="Multiboson", .legend="VV(V)+t#bar{t}X",                  .color=DGray, .dirs={
 			// 2016
 			"WWTo1L1Nu2Q_4f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
@@ -660,49 +623,8 @@ PlottingBase::define_histo_settings(const Weighting& w, EventSelections& evt_sel
 	// ------------------------- Data --------------------------
 
 	if (debug) std::cout<<"PlottingBase::define_histo_settings: ok3"<<std::endl;
-	std::vector<Sample> data_all, data_selected, single_ele, single_mu, single_pho, jetht, met;
+	std::vector<Sample> data_all, data_selected, single_ele, single_mu;
 	data_all.push_back({ .postfix="Data",      .legend="Data",             .color=Black, .dirs={
-			// Signal regions
-			"JetHT_Run2016B",
-			"JetHT_Run2016C",
-			"JetHT_Run2016D",
-			"JetHT_Run2016E",
-			"JetHT_Run2016F",
-			"JetHT_Run2016G",
-			"JetHT_Run2016H",
-			"JetHT_Run2017B",
-			"JetHT_Run2017C",
-			"JetHT_Run2017D",
-			"JetHT_Run2017E",
-			"JetHT_Run2017F",
-			"JetHT_Run2018A",
-			"JetHT_Run2018B",
-			"JetHT_Run2018C",
-			"JetHT_Run2018D",
-			"MET_Run2016B",
-			"MET_Run2016C",
-			"MET_Run2016D",
-			"MET_Run2016E",
-			"MET_Run2016F",
-			"MET_Run2016G",
-			"MET_Run2016H",
-			"MET_Run2017B",
-			"MET_Run2017C",
-			"MET_Run2017D",
-			"MET_Run2017E",
-			"MET_Run2017F",
-			"MET_Run2018A",
-			"MET_Run2018B",
-			"MET_Run2018C",
-			"MET_Run2018D",
-			"HTMHT_Run2016B",
-			"HTMHT_Run2016C",
-			"HTMHT_Run2016D",
-			"HTMHT_Run2016E",
-			"HTMHT_Run2016F",
-			"HTMHT_Run2016G",
-			"HTMHT_Run2016H",
-			// Control regions (and maybe leptonic signal)
 			"SingleElectron_Run2016B",
 			"SingleElectron_Run2016C",
 			"SingleElectron_Run2016D",
@@ -735,18 +657,6 @@ PlottingBase::define_histo_settings(const Weighting& w, EventSelections& evt_sel
 			"SingleMuon_Run2018B",
 			"SingleMuon_Run2018C",
 			"SingleMuon_Run2018D"
-				"SinglePhoton_Run2016B",
-			"SinglePhoton_Run2016C",
-			"SinglePhoton_Run2016D",
-			"SinglePhoton_Run2016E",
-			"SinglePhoton_Run2016F",
-			"SinglePhoton_Run2016G",
-			"SinglePhoton_Run2016H",
-			"SinglePhoton_Run2017B",
-			"SinglePhoton_Run2017C",
-			"SinglePhoton_Run2017D",
-			"SinglePhoton_Run2017E",
-			"SinglePhoton_Run2017F"
 	} });
 	data_all.push_back({ .postfix="SingleEle", .legend="Data", .color=Black, .dirs={
 			"SingleElectron_Run2016B",
@@ -784,80 +694,9 @@ PlottingBase::define_histo_settings(const Weighting& w, EventSelections& evt_sel
 			"SingleMuon_Run2018C",
 			"SingleMuon_Run2018D"
 			} });
-	data_all.push_back({ .postfix="SinglePho",  .legend="Data",  .color=Black, .dirs={
-			"SinglePhoton_Run2016B",
-			"SinglePhoton_Run2016C",
-			"SinglePhoton_Run2016D",
-			"SinglePhoton_Run2016E",
-			"SinglePhoton_Run2016F",
-			"SinglePhoton_Run2016G",
-			"SinglePhoton_Run2016H",
-			"SinglePhoton_Run2017B",
-			"SinglePhoton_Run2017C",
-			"SinglePhoton_Run2017D",
-			"SinglePhoton_Run2017E",
-			"SinglePhoton_Run2017F"
-			} });
-	data_all.push_back({ .postfix="JetHT",       .legend="Data",     .color=Black, .dirs={
-			"JetHT_Run2016B",
-			"JetHT_Run2016C",
-			"JetHT_Run2016D",
-			"JetHT_Run2016E",
-			"JetHT_Run2016F",
-			"JetHT_Run2016G",
-			"JetHT_Run2016H",
-			"JetHT_Run2017B",
-			"JetHT_Run2017C",
-			"JetHT_Run2017D",
-			"JetHT_Run2017E",
-			"JetHT_Run2017F",
-			"JetHT_Run2018A",
-			"JetHT_Run2018B",
-			"JetHT_Run2018C",
-			"JetHT_Run2018D"
-			} });
-	data_all.push_back({ .postfix="MET",       .legend="Data",       .color=Black, .dirs={
-			"MET_Run2016B",
-			"MET_Run2016C",
-			"MET_Run2016D",
-			"MET_Run2016E",
-			"MET_Run2016F",
-			"MET_Run2016G",
-			"MET_Run2016H",
-			"MET_Run2017B",
-			"MET_Run2017C",
-			"MET_Run2017D",
-			"MET_Run2017E",
-			"MET_Run2017F",
-			"MET_Run2018A",
-			"MET_Run2018B",
-			"MET_Run2018C",
-			"MET_Run2018D"
-			} });
-	data_all.push_back({ .postfix="HTMHT",     .legend="Data",     .color=Black, .dirs={
-			"HTMHT_Run2016B",
-			"HTMHT_Run2016C",
-			"HTMHT_Run2016D",
-			"HTMHT_Run2016E",
-			"HTMHT_Run2016F",
-			"HTMHT_Run2016G",
-			"HTMHT_Run2016H",
-			"HTMHT_Run2017B",
-			"HTMHT_Run2017C",
-			"HTMHT_Run2017D",
-			"HTMHT_Run2017E",
-			"HTMHT_Run2017F",
-			"HTMHT_Run2018A",
-			"HTMHT_Run2018B",
-			"HTMHT_Run2018C",
-			"HTMHT_Run2018D"
-			} });
 	data_selected.push_back(data_all[0]);
 	single_ele.push_back(data_all[1]);
 	single_mu.push_back(data_all[2]);
-	single_pho.push_back(data_all[3]);
-	jetht.push_back(data_all[4]);
-	met.push_back(data_all[5]);
 
 	// Individual Cuts implemented as Postfixes
 	sh.AddNewPostfix("Blind",      [this] { 
@@ -913,92 +752,6 @@ PlottingBase::define_histo_settings(const Weighting& w, EventSelections& evt_sel
 	static const PostfixOptions data_mc_opt = get_pf_opts_({data_selected, mc}, v.sample);
 	sh.AddNewPostfix("Data_MC",  [] { return data_mc_opt.index; }, data_mc_opt.postfixes, data_mc_opt.legends, "1,633");
 	//static const PostfixOptions data_fastsim_opt = get_pf_opts_({data_selected, signal_all}, v.sample);
-
-
-	static const PostfixOptions triggers_opt = get_pf_opts_({single_ele, single_pho, single_mu, mc}, v.sample);
-
-static const PostfixOptions triggers3_opt = get_pf_opts_({jetht, met, mc}, v.sample);
-sh.AddNewPostfix("LeptonicMeasurements", [this]()
-		{
-		if (!(v.nLepTight==1)) return (size_t)-1;
-		if (triggers3_opt.index==0) { // JetHT
-		bool OR_HLT_Had = 
-		v.HLT_PFHT125 ||
-		v.HLT_PFHT180 ||
-		v.HLT_PFHT200 ||
-		v.HLT_PFHT250 ||
-		v.HLT_PFHT300 ||
-		v.HLT_PFHT350 ||
-		v.HLT_PFHT370 ||
-		v.HLT_PFHT400 ||
-		v.HLT_PFHT430 ||
-		v.HLT_PFHT475 ||
-		v.HLT_PFHT510 ||
-		v.HLT_PFHT590 ||
-		v.HLT_PFHT650 ||
-		v.HLT_PFHT680 ||
-		v.HLT_PFHT780 ||
-		v.HLT_PFHT800 ||
-		v.HLT_PFHT890 ||
-		v.HLT_PFHT900 ||
-		v.HLT_PFHT1050 ||
-		v.HLT_AK8PFJet40 ||
-		v.HLT_AK8PFJet60 ||
-		v.HLT_AK8PFJet80 ||
-		v.HLT_AK8PFJet140 ||
-		v.HLT_AK8PFJet200 ||
-		v.HLT_AK8PFJet260 ||
-		v.HLT_AK8PFJet320 ||
-		v.HLT_AK8PFJet400 ||
-		v.HLT_AK8PFJet450 ||
-		v.HLT_AK8PFJet500 ||
-		v.HLT_AK8PFJet550;
-		if (!OR_HLT_Had) return (size_t)-1;
-		if (v.Jet.Jet.n<3) return (size_t)-1;
-		} else if (triggers3_opt.index==1) { // MET
-			if (!(v.HLT_PFMET110_PFMHT110_IDTight==1||v.HLT_PFMETNoMu110_PFMHTNoMu110_IDTight==1||
-						v.HLT_PFMET120_PFMHT120_IDTight==1||v.HLT_PFMETNoMu120_PFMHTNoMu120_IDTight==1||
-						v.HLT_PFMET120_PFMHT120_IDTight_PFHT60==1||v.HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60==1)) return (size_t)-1;
-			if (v.Jet.Jet.n<3) return (size_t)-1;
-		} else if (triggers3_opt.index==2) { // Simulation
-			if (v.Jet.Jet.n<3) return (size_t)-1;
-		} else {
-			return (size_t)-1;
-		}
-		return (size_t)triggers3_opt.index; 
-		}, "JetHT_1Lep;MET_1Lep;MC_1Lep", "HT;MET;Simulation", Carrot+Green+Black);
-
-static const PostfixOptions trigger_opt = get_pf_opts_({single_ele, met}, v.sample);
-sh.AddNewPostfix("EleMETComb", [this]()
-		{
-		if (trigger_opt.index==0) { // SingleElectron
-		if ((v.HLT_Ele27_WPTight_Gsf==1||v.HLT_Ele30_WPTight_Gsf==1 ||
-					v.HLT_Ele32_WPTight_Gsf==1)&&
-				v.Electron.Select.n==1&&v.Muon.Veto.n==0&&v.Tau.Select.n==0) return (size_t)0;
-		} else if (trigger_opt.index==1) { // MET
-		if (v.HLT_PFMET120_PFMHT120_IDTight==1&&v.nLepVeto==0&&v.Tau.Select.n==0) return (size_t)0;
-		}
-		return (size_t)-1; 
-		}, "SingleEle_MET", "SingleEle + MET", Black);
-
-static const PostfixOptions data_photruth_opt = get_pf_opts_({data_selected, mc}, v.sample);
-sh.AddNewPostfix("Data_PhotonTruth",  [this] { 
-		if (data_photruth_opt.index==0) return (size_t)0;
-		else if (data_photruth_opt.index==1) {
-		if      (v.Photon().matchGenPromptDirect) return (size_t)1;
-		else if (v.Photon().matchGenPromptFrag)   return (size_t)2;
-		else if (v.Photon().matchGenFake)         return (size_t)3;
-		}
-		return (size_t)-1; }, "Data;PromptDirect;PromptFrag;Fake", "Data;Prompt;Fragm.;Fakes", "1,418,601,633");
-sh.AddNewPostfix("Data_Photon1Truth",  [this] { 
-		if (v.Photon.Select.n!=1) return (size_t)-1;
-		if (data_photruth_opt.index==0) return (size_t)0;
-		else if (data_photruth_opt.index==1) {
-		if      (v.Photon.Select(0).matchGenPromptDirect) return (size_t)1;
-		else if (v.Photon.Select(0).matchGenPromptFrag)   return (size_t)2;
-		else if (v.Photon.Select(0).matchGenFake)         return (size_t)3;
-		}
-		return (size_t)-1; }, "Data;PromptDirect;PromptFrag;Fake", "Data;Prompt;Fragm.;Fakes", "1,418,601,633");
 
 sh.AddNewPostfix("run2", [] { return  (size_t)0; }, "run2;", "run2;", "418");
 sh.AddNewPostfix("Year", [this]() { return (size_t)(v.year-2016); }, "2016;2017;2018", "2016;2017;2018", "418,601,633");
@@ -1596,12 +1349,6 @@ sh.AddSpecial({ .name="Counts", .name_plus_1d="Syst", .axis="Events / bin", .axi
 sh.AddSpecial({ .name="SignalSignificance_T5ttcc",    .name_plus_1d="Bkg_T5ttcc",             .axis="S/#sqrt{S+B} - T5ttcc",        .axis_plus_1d="Background, Signal - T5ttcc"});
 sh.AddSpecial({ .name="SignalSignificance_TChiZH",    .name_plus_1d="Bkg_TChiZH",                 .axis="S/#sqrt{S+B} - TChiZH",        .axis_plus_1d="Background, Signal - TChiZH"});
 
-
-
-
-
-
-
 sh.AddNewFillParams("Counts",                         { .nbin= 1+syst_nSyst, .bins={-0.5, syst_nSyst+0.5}, .fill=[&syst_index] { return syst_index; }, .axis_title="Events / bin"});
 
 sh.AddNewSpecialFillParams("HLTEff_HT_MET_or_HT",           { .nbin=    2, .bins={ -0.5,     1.5}, .fill=[this] {
@@ -2137,7 +1884,6 @@ Examples:
 	// and the "syst " is attached to the histogram type so the code knows to fill this
 	// additional axis
 
-	bool doSyst = (syst_nSyst>0);
 	bool systematics = 1;
 
 	std::string s = "";
@@ -2147,40 +1893,29 @@ Examples:
 		c = "Counts_vs_";
 	}
 
-	std::vector<std::string> standard_plots;
-	if (doSyst) standard_plots = {"HT", "MET", "HTMET"};
-	else        standard_plots = {"HT", "HTFine", "METPhi", "METFine", "MET", "HTMET"};
-
 
 	// ----------------------------------------------------------------------------------------------
 	//                                    New preselection segions
 	//-----------------------------------------------------------------------------------------------
 
-	if (doSyst) {
-		standard_plots = {"HT", "METPhi", "MET"};
-	} else {
-		standard_plots = {"HT", "METPhi", "METFine", "MET"};
-	}
-	//standard_plots.push_back("HTFine");
-	//standard_plots.push_back("HTMET");
 
 	for (auto region : {Region::Pre_1Lep, Region::Pre_1Lep_MT, Region::Pre_2Lep}) {
 		sh.SetHistoWeights({ [&w,region] { return w.sf_weight[region]; } });
 		std::string cut(magic_enum::enum_name(region));
 		// Stack plots
 		std::string opt  = o_stk_d_S;
-		sh.AddHistos(  "evt",     { .fill="NJet",                    .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk9});
-		sh.AddHistos(  "evt",     { .fill="NBTag",                   .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk9});
-		sh.AddHistos(  "evt",     { .fill="MET",                     .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk9});
-		sh.AddHistos(  "evt",     { .fill="NTauSelect",                .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk9});
-		sh.AddHistos(  "evt",     { .fill="MTSelect",                .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk9});
-		sh.AddHistos(  "evt",     { .fill="MinDeltaPhi",             .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk9});
-		sh.AddHistos(  "evt",     { .fill="ElePt",                   .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk9});
-		sh.AddHistos(  "evt",     { .fill="MuPt",                    .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk9});
-		sh.AddHistos(  "AK4",     { .fill="JetPtBins",               .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk9});
-		sh.AddHistos(  "AK4",     { .fill="JetPt",                   .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk9});
-		sh.AddHistos(  "AK4",     { .fill="JetEta",                  .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk9});
-		sh.AddHistos(  "AK4",     { .fill="JetPhi",                  .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk9});
+		sh.AddHistos( "evt",     { .fill="NJet",                    .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
+		sh.AddHistos( "evt",     { .fill="NBTag",                   .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
+		sh.AddHistos( "evt",     { .fill="MET",                     .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
+		sh.AddHistos( "evt",     { .fill="NTauSelect",              .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
+		sh.AddHistos( "evt",     { .fill="MTSelect",                .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
+		sh.AddHistos( "evt",     { .fill="MinDeltaPhi",             .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
+		sh.AddHistos( "evt",     { .fill="ElePt",                   .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
+		sh.AddHistos( "evt",     { .fill="MuPt",                    .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
+		sh.AddHistos( "AK4",     { .fill="JetPtBins",               .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
+		sh.AddHistos( "AK4",     { .fill="JetPt",                   .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
+		sh.AddHistos( "AK4",     { .fill="JetEta",                  .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
+		sh.AddHistos( "AK4",     { .fill="JetPhi",                  .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
 	}
 }
 
