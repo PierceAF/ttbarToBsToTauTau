@@ -16,7 +16,7 @@ After running the setup.py, the filelists are automatically generated using cond
 ### Run code locally
 - ```source setup.sh```
 - ```make -j6 Analyzer Plotter```
-- ```./Analzer test.root filelists/2018/backgrounds/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8.txt year=2018```
+- ```./Analyzer test.root filelists/2018/backgrounds/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8.txt year=2018```
 - additional option: ```ilast=NEVENT```, ```debug=True``` (default is False)
 
 
