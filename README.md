@@ -22,7 +22,7 @@ After running the setup.py, the filelists are automatically generated using cond
 
 ### Run using condor (Please run outside of singularity)
 - ```python3 condor/run_all.py --full --nohadd --batch --condor --run --outdir=results/run_2024_11_28_syst --optim --nevt=1000000```
-
+- Recover jobs when run_all.py is dead. ```python3 condor/run_all.py --full --nohadd --batch --condor --run --outdir=results/run_2024_11_28_syst --recover```
 
 ## Explanation of code
 - ```Analyzer.cc```: main code
