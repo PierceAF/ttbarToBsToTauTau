@@ -10,19 +10,24 @@
 Run outside of singularity
 - ```python3 condor/setup.py```
 
-
 After running the setup.py, the filelists are automatically generated using condor/filelist_2018.txt
 
 ### Run code locally
+- Do it inside of cmssw-el7 singularity
 - ```source setup.sh```
 - ```make -j6 Analyzer Plotter```
-- ```./Analyzer test.root filelists/2018/backgrounds/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8.txt year=2018```
+- ```./Analyzer output.root filelists/2018/backgrounds/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8.txt year=2018```
 - additional option: ```ilast=NEVENT```, ```debug=True``` (default is False)
 
 
 ### Run using condor (Please run outside of singularity)
 - ```python3 condor/run_all.py --full --nohadd --batch --condor --run --outdir=results/run_2024_11_28_syst --optim --nevt=1000000```
 - Recover jobs when run_all.py is dead. ```python3 condor/run_all.py --full --nohadd --batch --condor --run --outdir=results/run_2024_11_28_syst --recover```
+
+
+### Plotting after full condor run
+When the condor jobs are done, you need to merge by hand(manually)
+- ```./Plotter plot.root output.root```
 
 ## Explanation of code
 - ```Analyzer.cc```: main code
