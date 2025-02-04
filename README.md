@@ -26,7 +26,8 @@ After running the setup.py, the filelists are automatically generated using cond
 
 
 ### Plotting after full condor run
-When the condor jobs are done, you need to merge by hand(manually)
+- Do it inside of cmssw-el7 singularity
+- When the condor jobs are done, you need to merge by hand(manually)
 - ```./Plotter plot.root output.root```
 
 ## Explanation of code
