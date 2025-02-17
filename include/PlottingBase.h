@@ -73,7 +73,8 @@ class PlottingBase
 		std::string O_stk_d = "LogStack1AddRatioTwoCol98Approval15";
 		std::string O_stk_s = "LogStack1AddRatioTwoCol98Approval45";
 		// Signal region stack plots (data + N signal)
-		std::string o_stk_d_S = "LogStack2AddRatioTwoCol108AddIntApproval45";
+		//std::string o_stk_d_S = "LogStack2AddRatioTwoCol108AddIntApproval45";
+		std::string o_stk_d_S = "Stack2AddRatioTwoCol108AddIntApproval45";
 		std::string o_stk_s_S = "LogStack2AddRatioTwoCol108AddIntApproval45";
 		std::string O_stk_d_S = "LogStack2AddRatioTwoCol108Approval15";
 		std::string O_stk_s_S = "LogStack2AddRatioTwoCol108Approval45";
@@ -88,6 +89,8 @@ class PlottingBase
 		std::string o_norm_d = "NormApproval15";
 		std::string o_norm_s = "NormApproval45";
 
+		std::vector<double> r_temp = {0,0, 1.01e-2,1e5,  0.3,0.86};
+		std::vector<double> r_Stk3 = {0,0, 1.01e-2,1e3,  0.3,0.86};
 		std::vector<double> r_Stk4 = {0,0, 1.01e-2,1e4,  0.3,0.86};
 		std::vector<double> r_Stk5 = {0,0, 1.01e-2,1e5,  0.3,0.86};
 		std::vector<double> r_Stk6 = {0,0, 1.01e-2,1e6,  0.3,0.86};
@@ -779,7 +782,7 @@ legname["1aW"]         = "NW(anti-tag)#geq1";
 legname["1aTop"]       = "NTop(anti-tag)#geq1";
 //legname["InvdPhi0p3"]  = "#Delta#phi<0.3";
 legname["InvdPhi"]     = "inv. #Delta#phi";
-legname["1Lep"]        = "Nlep=1";
+legname["Lep"]        = "Nlep=1";
 legname["MT"]          = "m_{T}";
 legname["1mW"]         = "NW(mass-tag)#geq1";
 legname["1mTop"]       = "NTop(mass-tag)#geq1";
@@ -792,9 +795,18 @@ legname["Mll"]         = "|m_{ll} - m_{Z}| < 10 GeV";
 legname["1Top"]        = "Ntop#geq1";
 legname["1Pho"]        = "N#gamma=1";
 std::map<Region, std::string> regionname;
-regionname[Region::Pre_1Lep]          = "Semi-Leptonic Baseline selection";
-regionname[Region::Pre_2Lep]          = "Di-Leptonic Baseline selection";
-regionname[Region::Pre_1Lep_MT]     = "Semi-Leptonic Baseline selection + MT";
+regionname[Region::Pre_Lep]    = "Semi-Leptonic Baseline selection";
+regionname[Region::Pre_e]    = "Semi-Leptonic(e) Baseline selection";
+regionname[Region::Pre_u]    = "Semi-Leptonic(u) Baseline selection";
+regionname[Region::Pre_uu]      = "Di-Leptonic(#mu#mu) Baseline selection";
+regionname[Region::Pre_ee]      = "Di-Leptonic(ee) Baseline selection";
+regionname[Region::Pre_eu]      = "Di-Leptonic(e#mu) Baseline selection";
+regionname[Region::Lep]     = "Semi-Leptonic region";
+regionname[Region::Lep_e]     = "Semi-Leptonic(e) region";
+regionname[Region::Lep_u]     = "Semi-Leptonic(u) region";
+regionname[Region::DiLep_uu]    = "Di-Leptonic(#mu#mu) region";
+regionname[Region::DiLep_ee]    = "Di-Leptonic(ee) region";
+regionname[Region::DiLep_eu]    = "Di-Leptonic(e#mu) region";
 if (debug) std::cout<<"PlottingBase::define_histo_settings: region names ok"<<std::endl;
 
 // Cut Postfixes
@@ -928,8 +940,8 @@ sh.AddNewPostfix("OtherNonisoLep", [this] { return std::min(v.nLepVetoNoIso-v.nL
 sh.AddNewPostfix("OtherLooseLep",  [this] { return std::min(v.nLepVeto     -v.nLepSelect,(size_t)1); }, "NoOtherLep;OtherLep",           "0 other loose lepton;#geq1 other loose lepton", Red+Green);
 sh.AddNewPostfix("Ele_Muon",       [this] { return (size_t)(v.Electron.Veto.n==1 ? 0 : v.Muon.Veto.n==1 ? 1 : -1); }, "1VetoEle;1MuVeto", "1e (veto);1#mu (veto)", "1,2");
 sh.AddNewPostfix("Ele_or_Muon",    [this] { return (size_t)(v.Electron.Select.n==1 ? 0 : v.Muon.Select.n==1 ? 1 : -1); }, "EleOnly;MuOnly", "1e;1#mu", "1,2");
-sh.AddNewPostfix("0Lep",           [this] { return (size_t)(v.Electron.Select.n+v.Muon.Select.n==1 ? 0 : -1); }, "1Lep",  "1 lep",  Black);
-sh.AddNewPostfix("Lep",            [this] { return (size_t)((v.nLepVeto+v.Tau.Select.n)==0 ? 0 : v.Electron.Select.n+v.Muon.Select.n==1 ? 1 : -1); }, "0Lep;1Lep",  "0 lep;1 lep",  Black+Red);
+sh.AddNewPostfix("0Lep",           [this] { return (size_t)(v.Electron.Select.n+v.Muon.Select.n==1 ? 0 : -1); }, "Lep",  "1 lep",  Black);
+sh.AddNewPostfix("Lep",            [this] { return (size_t)((v.nLepVeto+v.Tau.Select.n)==0 ? 0 : v.Electron.Select.n+v.Muon.Select.n==1 ? 1 : -1); }, "0Lep;Lep",  "0 lep;1 lep",  Black+Red);
 sh.AddNewPostfix("Tau",            [this] { return (size_t)(v.Tau.Select.n==0 ? 0 : v.Tau.Select.n==1 ? 1 : -1); }, "0Tau;1Tau",  "0 #tau;1 #tau",  Black+Red);
 sh.AddNewPostfix("1Ele",           [this] { return (size_t)(v.Electron.Select.n==1 ? 0 : -1); }, "1Ele",  "1e",  Black);
 sh.AddNewPostfix("1Muon",          [this] { return (size_t)(v.Muon.Select.n==1 ?  0 : -1); }, "1Muon", "1#mu", Black);
@@ -1103,10 +1115,12 @@ sh.AddNewFillParams("VetoTauEta",      { .nbin=LepEta.size()-1, .bins=LepEta, .f
 
 // Selected Leptons
 // Electrons
-sh.AddNewFillParams("ElePt",           { .nbin=LepPt.size()-1, .bins=LepPt,  .fill=[this] { return v.Electron.Select.n<1 ? -9999 : v.Electron.Select(0).pt;  }, .axis_title="Electron p_{T} (GeV)", .def_range={ELE_SELECT_PT_CUT,500}});
-sh.AddNewFillParams("EleEta",          { .nbin=LepEta.size()-1, .bins=LepEta,.fill=[this] { return v.Electron.Select.n<1 ? -9999 : std::abs(v.Electron.Select(0).eta); }, .axis_title="Electron |#eta|",  .def_range={-ELE_SELECT_ETA_CUT,ELE_SELECT_ETA_CUT}});
-sh.AddNewFillParams("EleJetDR",        { .nbin=  60, .bins={     0,      6}, .fill=[this] { return v.Electron.Select.n<1 ? -9999 : v.Electron.Select(0).jetDR;         }, .axis_title="#DeltaR (ele, jet)",         .def_range={0,4}});
-sh.AddNewFillParams("EleJetPt",        { .nbin= 100, .bins={     0,    500}, .fill=[this] { return v.Electron.Select.n<1 ? -9999 : v.Electron.Select(0).iMatchedAK4==(size_t)-1 ? -9999 : v.Jet(v.Electron.Select(0).iMatchedAK4).pt;         }, .axis_title="p_{T, nearest jet to ele}"});
+sh.AddNewFillParams("LeadElePt",       { .nbin=LepPt.size()-1, .bins=LepPt,  .fill=[this] { return v.Electron.Select.n<1 ? -9999 : v.Electron.Select(0).pt;  }, .axis_title="Electron p_{T} (GeV)", .def_range={ELE_SELECT_PT_CUT,500}});
+sh.AddNewFillParams("LeadEleEta",      { .nbin=LepEta.size()-1, .bins=LepEta,.fill=[this] { return v.Electron.Select.n<1 ? -9999 : std::abs(v.Electron.Select(0).eta); }, .axis_title="Electron |#eta|",  .def_range={-ELE_SELECT_ETA_CUT,ELE_SELECT_ETA_CUT}});
+sh.AddNewFillParams("SubLeadElePt",    { .nbin=LepPt.size()-1, .bins=LepPt,  .fill=[this] { return v.Electron.Select.n<2 ? -9999 : v.Electron.Select(1).pt;  }, .axis_title="Electron p_{T} (GeV)", .def_range={20,500}});
+sh.AddNewFillParams("SubLeadEleEta",   { .nbin=LepEta.size()-1, .bins=LepEta,.fill=[this] { return v.Electron.Select.n<2 ? -9999 : std::abs(v.Electron.Select(1).eta); }, .axis_title="Electron |#eta|",  .def_range={-ELE_SELECT_ETA_CUT,ELE_SELECT_ETA_CUT}});
+sh.AddNewFillParams("EleJetDR", { .nbin=  60, .bins={     0,      6}, .fill=[this] { return v.Electron.Select.n<1 ? -9999 : v.Electron.Select(0).jetDR;         }, .axis_title="#DeltaR (ele, jet)",         .def_range={0,4}});
+sh.AddNewFillParams("EleJetPt", { .nbin= 100, .bins={     0,    500}, .fill=[this] { return v.Electron.Select.n<1 ? -9999 : v.Electron.Select(0).iMatchedAK4==(size_t)-1 ? -9999 : v.Jet(v.Electron.Select(0).iMatchedAK4).pt;         }, .axis_title="p_{T, nearest jet to ele}"});
 sh.AddNewFillParams("EleJetDPhi",      { .nbin=MDP.size()-1, .bins=MDP,      .fill=[this] { return v.Electron.Select.n<1 ? -9999 : v.Electron.Select(0).jetDPhi;       }, .axis_title="#Delta#phi (ele, jet)"});
 sh.AddNewFillParams("Ele1JetDPhi",     { .nbin=MDP.size()-1, .bins=MDP,      .fill=[this] { return v.Electron.Select.n<1 ? -9999 : v.Electron.Select(0).jetDPhi; }, .axis_title="#Delta#phi (1st ele, jet)"});
 sh.AddNewFillParams("Ele2JetDPhi",     { .nbin=MDP.size()-1, .bins=MDP,      .fill=[this] { return v.Electron.Select.n<2 ? -9999 : v.Electron.Select(1).jetDPhi; }, .axis_title="#Delta#phi (2nd ele, jet)"});
@@ -1119,8 +1133,10 @@ sh.AddNewFillParams("EleNoIsoEta",      { .nbin=  40, .bins={    -4,      4}, .f
 sh.AddNewFillParams("EleNonIsoPt",       { .nbin= 100, .bins={     0,    500}, .fill=[this] { return v.Electron.NonIso.n<1 ? -9999 : v.Electron.NonIso(0).pt;  }, .axis_title="Electron p_{T} (GeV)", .def_range={ELE_TIGHT_PT_CUT,250}});
 sh.AddNewFillParams("EleNonIsoEta",      { .nbin=  40, .bins={    -4,      4}, .fill=[this] { return v.Electron.NonIso.n<1 ? -9999 : v.Electron.NonIso(0).eta; }, .axis_title="Electron #eta",  .def_range={-ELE_TIGHT_ETA_CUT,ELE_TIGHT_ETA_CUT}});
 // Muons
-sh.AddNewFillParams("MuPt",            { .nbin=LepPt.size()-1, .bins=LepPt,   .fill=[this] { return v.Muon.Select.n<1 ? -9999 : v.Muon.Select(0).pt;  }, .axis_title="Muon p_{T} (GeV)", .def_range={MU_SELECT_PT_CUT,500}});
-sh.AddNewFillParams("MuEta",           { .nbin=LepEta.size()-1, .bins=LepEta, .fill=[this] { return v.Muon.Select.n<1 ? -9999 : std::abs(v.Muon.Select(0).eta); }, .axis_title="Muon |#eta|",        .def_range={-MU_SELECT_ETA_CUT,MU_SELECT_ETA_CUT}});
+sh.AddNewFillParams("LeadMuPt",        { .nbin=LepPt.size()-1, .bins=LepPt,   .fill=[this] { return v.Muon.Select.n<1 ? -9999 : v.Muon.Select(0).pt;  }, .axis_title="Muon p_{T} (GeV)", .def_range={MU_SELECT_PT_CUT,500}});
+sh.AddNewFillParams("LeadMuEta",       { .nbin=LepEta.size()-1, .bins=LepEta, .fill=[this] { return v.Muon.Select.n<1 ? -9999 : std::abs(v.Muon.Select(0).eta); }, .axis_title="Muon |#eta|",        .def_range={-MU_SELECT_ETA_CUT,MU_SELECT_ETA_CUT}});
+sh.AddNewFillParams("SubLeadMuPt",     { .nbin=LepPt.size()-1, .bins=LepPt,   .fill=[this] { return v.Muon.Select.n<2 ? -9999 : v.Muon.Select(1).pt;  }, .axis_title="Muon p_{T} (GeV)", .def_range={20,500}});
+sh.AddNewFillParams("SubLeadMuEta",    { .nbin=LepEta.size()-1, .bins=LepEta, .fill=[this] { return v.Muon.Select.n<2 ? -9999 : std::abs(v.Muon.Select(1).eta); }, .axis_title="Muon |#eta|",        .def_range={-MU_SELECT_ETA_CUT,MU_SELECT_ETA_CUT}});
 sh.AddNewFillParams("MuJetDR",         { .nbin=  60, .bins={     0,      6}, .fill=[this] { return v.Muon.Select.n<1 ? -9999 : v.Muon.Select(0).jetDR;      }, .axis_title="#DeltaR (muon, jet)",        .def_range={0,4}});
 sh.AddNewFillParams("MuJetPt",         { .nbin= 100, .bins={     0,    500}, .fill=[this] { return v.Muon.Select.n<1 ? -9999 : v.Muon.Select(0).iMatchedAK4==(size_t)-1 ? -9999 : v.Jet(v.Muon.Select(0).iMatchedAK4).pt;      }, .axis_title="p_{T, nearest jet to muon}"});
 sh.AddNewFillParams("MuJetDPhi",       { .nbin=MDP.size()-1, .bins=MDP,      .fill=[this] { return v.Muon.Select.n<1 ? -9999 : v.Muon.Select(0).jetDPhi;    }, .axis_title="#Delta#phi (muon, jet)"});
@@ -1168,12 +1184,14 @@ sh.AddNewFillParams("JetEleDR",             { .nbin= 120, .bins={     0,      6}
 sh.AddNewFillParams("JetElePtRatio",        { .nbin=  40, .bins={     0,      4}, .fill=[this] { return v.Jet().elePtRatio;      }, .axis_title="p_{T}^{electron}/p_{T}^{jet}", .def_range={0,2}});
 sh.AddNewFillParams("JetMuonDR",            { .nbin= 120, .bins={     0,      6}, .fill=[this] { return v.Jet().muDR;            }, .axis_title="#DeltaR (jet, muon)", .def_range={0,0.8}});
 sh.AddNewFillParams("JetMuonPtRatio",       { .nbin=  40, .bins={     0,      4}, .fill=[this] { return v.Jet().muPtRatio;       }, .axis_title="p_{T}^{muon}/p_{T}^{jet}", .def_range={0,2}});
+sh.AddNewFillParams("JetFlavour",           { .nbin=  10, .bins={    0,      10}, .fill=[this] { return v.Jet().hadronFlavour;   }, .axis_title="Flavour_{Jet}",        .def_range={0,10}});
 // BJets
 sh.AddNewFillParams("BJetPtBins",           { .nbin=PtFine.size()-1,.bins=PtFine, .fill=[this] { return v.Jet().pt;           }, .axis_title="B-jet p_{T} (GeV)", .def_range={0,2000} });
 sh.AddNewFillParams("BJetPt",               { .nbin=  80, .bins={     0,   4000}, .fill=[this] { return v.Jet().pt;           }, .axis_title="B-jet p_{T} (GeV)", .def_range={0,2000} });
 sh.AddNewFillParams("BJetEta",              { .nbin=  80, .bins={    -4,      4}, .fill=[this] { return v.Jet().eta;          }, .axis_title="B-jet #eta",        .def_range={-2.4,2.4}});
 sh.AddNewFillParams("BJetPhi",              { .nbin=  16, .bins={-3.142,  3.142}, .fill=[this] { return v.Jet().phi;          }, .axis_title="B-jet #phi"});
-sh.AddNewFillParams("BJetDeepB",              { .nbin=  20, .bins={     0,   1.00}, .fill=[this] { return std::min(v.Jet().btagDeepB,float(0.999)); }, .axis_title="B-jet DeepB"});
+sh.AddNewFillParams("BJetDeepB",            { .nbin=  20, .bins={     0,   1.00}, .fill=[this] { return std::min(v.Jet().btagDeepB,float(0.999)); }, .axis_title="B-jet DeepB"});
+sh.AddNewFillParams("BJetFlavour",          { .nbin=  10, .bins={    0,      10}, .fill=[this] { return v.Jet().hadronFlavour;        }, .axis_title="Flavour_{B-jet}",        .def_range={0,10}});
 // Megajets
 sh.AddNewFillParams("MegaJetPt",            { .nbin=  80, .bins={     0,   4000}, .fill=[this] { return v.iMegaJet<v.megajets.size() ? v.megajets[v.iMegaJet].Pt()  : -9999;      }, .axis_title="Megajet p_{T} (GeV)", .def_range={0,2000} });
 sh.AddNewFillParams("MegaJetEta",           { .nbin=  80, .bins={    -4,      4}, .fill=[this] { return v.iMegaJet<v.megajets.size() ? v.megajets[v.iMegaJet].Eta() : -9999;     }, .axis_title="Megajet #eta",        .def_range={-2.4,2.4}});
@@ -1228,7 +1246,7 @@ sh.AddNewFillParams("NBTagNoPho",           { .nbin=   5, .bins={    0,       5}
 sh.AddNewFillParams("NLepVeto",             { .nbin=   5, .bins={    0,       5}, .fill=[this] { return v.nLepVeto;                     }, .axis_title="N_{lepton, Veto}",     .def_range={0,4}});
 sh.AddNewFillParams("NEleVeto",             { .nbin=   5, .bins={    0,       5}, .fill=[this] { return v.Electron.Veto.n;              }, .axis_title="N_{ele, Veto}",        .def_range={0,4}});
 sh.AddNewFillParams("NMuVeto",              { .nbin=   5, .bins={    0,       5}, .fill=[this] { return v.Muon.Veto.n;                  }, .axis_title="N_{muon, Veto}",       .def_range={0,4}});
-sh.AddNewFillParams("NTauSelect",             { .nbin=  10, .bins={    0,      10}, .fill=[this] { return v.Tau.Select.n;                   }, .axis_title="N_{tau, Veto}",        .def_range={0,10}});
+sh.AddNewFillParams("NTau",             { .nbin=  10, .bins={    0,      10}, .fill=[this] { return v.Tau.Select.n;                   }, .axis_title="N_{#tau}",        .def_range={0,10}});
 sh.AddNewFillParams("NIsoTrk",              { .nbin=   5, .bins={    0,       5}, .fill=[this] { return v.nIsoTrack;                    }, .axis_title="N_{iso trk}",          .def_range={0,4}});
 sh.AddNewFillParams("NLep",                 { .nbin=   5, .bins={    0,       5}, .fill=[this] { return v.nLepSelect;                   }, .axis_title="N_{lepton}",           .def_range={0,4}});
 sh.AddNewFillParams("NLepTight",            { .nbin=   5, .bins={    0,       5}, .fill=[this] { return v.nLepTight;                    }, .axis_title="N_{e/#mu, tight}",         .def_range={0,5}});
@@ -1272,10 +1290,11 @@ sh.AddNewFillParams("OnlineHT",             { .nbin= 100, .bins={    0,    5000}
 sh.AddNewFillParams("AK8HT",                { .nbin=HT.size()-1, .bins=HT,        .fill=[this] { return v.AK8_Ht;             }, .axis_title="H_{T}^{AK8} (GeV)",             .def_range={0, 2000}});
 // MET
 sh.AddNewFillParams("METPhi",               { .nbin=  24, .bins={-3.142,  3.142}, .fill=[this] { return v.MET_phi;             }, .axis_title="MET #phi"});
-sh.AddNewFillParams("MET",                  { .nbin=MET.size()-1, .bins=MET,      .fill=[this] { return v.MET_pt;              }, .axis_title="#slash{E}_{T} (GeV)",              .def_range={0,300}});
+//sh.AddNewFillParams("MET",                  { .nbin=MET.size()-1, .bins=MET,      .fill=[this] { return v.MET_pt;              }, .axis_title="#slash{E}_{T} (GeV)",              .def_range={0,300}});
+sh.AddNewFillParams("MET",                  { .nbin=100, .bins={0,1000},      .fill=[this] { return v.MET_pt;              }, .axis_title="#slash{E}_{T} (GeV)",              .def_range={0,300}});
 sh.AddNewFillParams("MET2DBins",            { .nbin=MET_2D_bins.size()-1, .bins=MET_2D_bins, .fill=[this] { return v.MET_pt;   }, .axis_title="#slash{E}_{T} (GeV)",              .def_range={0,600}});
 sh.AddNewFillParams("METNoPho",             { .nbin=MET.size()-1, .bins=MET,      .fill=[this] { return std::sqrt(v.MET_pho.Perp2());   }, .axis_title="#slash{E}_{T, no #gamma} (GeV)", .def_range={0,2000}});
-sh.AddNewFillParams("METNo1Lep",            { .nbin=MET.size()-1, .bins=MET,      .fill=[this] { return std::sqrt(v.MET_1l.Perp2());    }, .axis_title="#slash{E}_{T,no lep} (GeV)",     .def_range={0,2000}});
+sh.AddNewFillParams("METNoLep",            { .nbin=MET.size()-1, .bins=MET,      .fill=[this] { return std::sqrt(v.MET_1l.Perp2());    }, .axis_title="#slash{E}_{T,no lep} (GeV)",     .def_range={0,2000}});
 sh.AddNewFillParams("METNo1VLep",           { .nbin=MET.size()-1, .bins=MET,      .fill=[this] { return std::sqrt(v.MET_1vl.Perp2());   }, .axis_title="#slash{E}_{T,no lep} (GeV)",     .def_range={0,2000}});
 sh.AddNewFillParams("METNo2Lep",            { .nbin=MET.size()-1, .bins=MET,      .fill=[this] { return std::sqrt(v.MET_2l.Perp2());    }, .axis_title="#slash{E}_{T,ll} (GeV)",         .def_range={0,2000}});
 sh.AddNewFillParams("METNoDiLep",           { .nbin=MET.size()-1, .bins=MET,      .fill=[this] { return std::sqrt(v.MET_dilep.Perp2()); }, .axis_title="#slash{E}_{T,1l missing} (GeV)",         .def_range={0,2000}});
@@ -1309,7 +1328,7 @@ sh.AddNewFillParams("DeltaPhi",                 { .nbin=DP.size()-1,  .bins=DP, 
 sh.AddNewFillParams("DeltaPhiNoPho",            { .nbin=DP.size()-1,  .bins=DP,       .fill=[this] { return v.dPhiRazorNoPho;          }, .axis_title="#Delta#phi_{megajets, no #gamma}"});
 sh.AddNewFillParams("MinDeltaPhi",              { .nbin=  64, .bins={    0,     3.2}, .fill=[this] { return v.minDeltaPhi;             }, .axis_title="#Delta#phi_{min}"});
 //sh.AddNewFillParams("MinDeltaPhi",              { .nbin=MDP.size()-1, .bins=MDP,      .fill=[this] { return v.minDeltaPhi;             }, .axis_title="#Delta#phi_{min}"});
-sh.AddNewFillParams("MinDeltaPhiNo1Lep",        { .nbin=MDP.size()-1, .bins=MDP,      .fill=[this] { return v.minDeltaPhi_1l;          }, .axis_title="#Delta#phi_{min,no lep}"});
+sh.AddNewFillParams("MinDeltaPhiNoLep",        { .nbin=MDP.size()-1, .bins=MDP,      .fill=[this] { return v.minDeltaPhi_1l;          }, .axis_title="#Delta#phi_{min,no lep}"});
 sh.AddNewFillParams("MinDeltaPhiNo1VLep",       { .nbin=MDP.size()-1, .bins=MDP,      .fill=[this] { return v.minDeltaPhi_1vl;         }, .axis_title="#Delta#phi_{min,no lep}"});
 sh.AddNewFillParams("MinDeltaPhiNo2Lep",        { .nbin=MDP.size()-1, .bins=MDP,      .fill=[this] { return v.minDeltaPhi_2l;          }, .axis_title="#Delta#phi_{min,ll}"});
 sh.AddNewFillParams("MinDeltaPhiNoPho",         { .nbin=MDP.size()-1, .bins=MDP,      .fill=[this] { return v.minDeltaPhi_pho;         }, .axis_title="#Delta#phi_{min, no #gamma}"});
@@ -1321,7 +1340,7 @@ sh.AddNewFillParams("DeltaPhiBoostedJetLepMET", { .nbin=DP.size()-1,  .bins=DP, 
 sh.AddNewFillParams("DeltaPhiMuonJetMET",       { .nbin=8, .bins={0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4, 2.74159, 3.1416}, .fill=[this] { return v.dPhiMuonJetMET; }, .axis_title="#Delta#phi (#mu jet, MET)"});
 // MT/Mll
 sh.AddNewFillParams("MT",                   { .nbin=  50, .bins={    0,    1000}, .fill=[this] { return v.MT_lepVeto;              }, .axis_title="m_{T} (GeV)",  .def_range={0,500}});
-sh.AddNewFillParams("MTSelect",             { .nbin=  50, .bins={    0,    1000}, .fill=[this] { return v.MT;                      }, .axis_title="m_{T} (GeV)",  .def_range={0,500}});
+sh.AddNewFillParams("MTSelect",             { .nbin=  100, .bins={    0,    1000}, .fill=[this] { return v.MT;                      }, .axis_title="m_{T} (GeV)",  .def_range={0,500}});
 sh.AddNewFillParams("MTTight",              { .nbin=  50, .bins={    0,    1000}, .fill=[this] { return v.MT_lepTight;             }, .axis_title="m_{T} (GeV)",  .def_range={0,500}});
 sh.AddNewFillParams("MTNonIso",             { .nbin=  50, .bins={    0,    1000}, .fill=[this] { return v.MT_lepNonIso;            }, .axis_title="m_{T} (GeV)",  .def_range={0,500}});
 sh.AddNewFillParams("MTBoost",              { .nbin=  20, .bins={    0,    4000}, .fill=[this] { return v.MT_boost;                }, .axis_title="m_{T,Boost+MET} (GeV)",  .def_range={0,2000}});
@@ -1899,23 +1918,81 @@ Examples:
 	//-----------------------------------------------------------------------------------------------
 
 
-	for (auto region : {Region::Pre_1Lep, Region::Pre_1Lep_MT, Region::Pre_2Lep}) {
+	for (auto region : {Region::Pre_Lep, Region::Pre_e, Region::Pre_u, Region::Lep, Region::Lep_e, Region::Lep_u}) {
 		sh.SetHistoWeights({ [&w,region] { return w.sf_weight[region]; } });
 		std::string cut(magic_enum::enum_name(region));
 		// Stack plots
 		std::string opt  = o_stk_d_S;
-		sh.AddHistos( "evt",     { .fill="NJet",                    .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
-		sh.AddHistos( "evt",     { .fill="NBTag",                   .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
-		sh.AddHistos( "evt",     { .fill="MET",                     .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
-		sh.AddHistos( "evt",     { .fill="NTauSelect",              .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
-		sh.AddHistos( "evt",     { .fill="MTSelect",                .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
-		sh.AddHistos( "evt",     { .fill="MinDeltaPhi",             .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
-		sh.AddHistos( "evt",     { .fill="ElePt",                   .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
-		sh.AddHistos( "evt",     { .fill="MuPt",                    .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
-		sh.AddHistos( "AK4",     { .fill="JetPtBins",               .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
-		sh.AddHistos( "AK4",     { .fill="JetPt",                   .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
-		sh.AddHistos( "AK4",     { .fill="JetEta",                  .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
-		sh.AddHistos( "AK4",     { .fill="JetPhi",                  .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk8});
+		sh.AddHistos( "evt",   { .fill="NJet",          .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk6});
+		sh.AddHistos( "evt",   { .fill="NBTag",         .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk6});
+		sh.AddHistos( "evt",   { .fill="MET",           .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk5});
+		sh.AddHistos( "evt",   { .fill="NTau",    .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk6});
+		sh.AddHistos( "evt",   { .fill="MTSelect",      .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk5});
+		sh.AddHistos( "AK4",   { .fill="JetPt",         .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk6});
+		sh.AddHistos( "AK4",   { .fill="JetEta",        .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk5});
+		sh.AddHistos( "AK4",   { .fill="JetPhi",        .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk6});
+		sh.AddHistos( "AK4",   { .fill="JetFlavour",    .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk6});
+		sh.AddHistos( "b",     { .fill="BJetPt",         .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk5});
+		sh.AddHistos( "b",     { .fill="BJetEta",        .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk5});
+		sh.AddHistos( "b",     { .fill="BJetPhi",        .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk5});
+		sh.AddHistos( "b",     { .fill="BJetFlavour",    .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk6});
+	}
+	for (auto region : {Region::DiLep_uu, Region::DiLep_ee, Region::DiLep_eu, Region::Pre_uu, Region::Pre_ee, Region::Pre_eu}) {
+		sh.SetHistoWeights({ [&w,region] { return w.sf_weight[region]; } });
+		std::string cut(magic_enum::enum_name(region));
+		// Stack plots
+		std::string opt  = o_stk_d_S;
+		sh.AddHistos( "evt",     { .fill="NJet",          .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk5});
+		sh.AddHistos( "evt",     { .fill="NBTag",         .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk5});
+		sh.AddHistos( "evt",     { .fill="MET",           .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk4});
+		sh.AddHistos( "evt",     { .fill="NTau",    .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk5});
+		sh.AddHistos( "AK4",     { .fill="JetPt",         .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk5});
+		sh.AddHistos( "AK4",     { .fill="JetEta",        .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk4});
+		sh.AddHistos( "AK4",     { .fill="JetPhi",        .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk5});
+		sh.AddHistos( "AK4",     { .fill="JetFlavour",    .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk6});
+		sh.AddHistos( "b",     { .fill="BJetPt",         .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk4});
+		sh.AddHistos( "b",     { .fill="BJetEta",        .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk4});
+		sh.AddHistos( "b",     { .fill="BJetPhi",        .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk4});
+		sh.AddHistos( "b",     { .fill="BJetFlavour",    .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk6});
+	}
+	for (auto region : {Region::Pre_Lep, Region::Pre_e, Region::Lep, Region::Lep_e, Region::DiLep_ee, Region::DiLep_eu, Region::Pre_ee, Region::Pre_eu}) {
+		sh.SetHistoWeights({ [&w,region] { return w.sf_weight[region]; } });
+		std::string cut(magic_enum::enum_name(region));
+		// Stack plots
+		std::string opt  = o_stk_d_S;
+		sh.AddHistos( "ele",     { .fill="LeadElePt",  .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk5});
+		sh.AddHistos( "ele",     { .fill="LeadEleEta", .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk5});
+	}
+	for (auto region : {Region::Pre_Lep, Region::Pre_u, Region::Lep, Region::Lep_u, Region::DiLep_uu, Region::DiLep_eu, Region::Pre_uu, Region::Pre_eu}) {
+		sh.SetHistoWeights({ [&w,region] { return w.sf_weight[region]; } });
+		std::string cut(magic_enum::enum_name(region));
+		// Stack plots
+		std::string opt  = o_stk_d_S;
+		sh.AddHistos( "mu",     { .fill="LeadMuPt",  .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk5});
+		sh.AddHistos( "mu",     { .fill="LeadMuEta", .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk5});
+	}
+	for (auto region : {Region::DiLep_ee, Region::Pre_ee}) {
+		sh.SetHistoWeights({ [&w,region] { return w.sf_weight[region]; } });
+		std::string cut(magic_enum::enum_name(region));
+		// Stack plots
+		std::string opt  = o_stk_d_S;
+		sh.AddHistos( "ele",     { .fill="SubLeadElePt",  .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk4});
+		sh.AddHistos( "ele",     { .fill="SubLeadEleEta", .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk4});
+	}
+	for (auto region : {Region::DiLep_uu, Region::Pre_uu}) {
+		sh.SetHistoWeights({ [&w,region] { return w.sf_weight[region]; } });
+		std::string cut(magic_enum::enum_name(region));
+		// Stack plots
+		std::string opt  = o_stk_d_S;
+		sh.AddHistos( "mu",     { .fill="SubLeadMuPt",  .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk4});
+		sh.AddHistos( "mu",     { .fill="SubLeadMuEta", .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk4});
+	}
+	for (auto region : {Region::DiLep_uu, Region::DiLep_ee, Region::Pre_uu, Region::Pre_ee}) {
+		sh.SetHistoWeights({ [&w,region] { return w.sf_weight[region]; } });
+		std::string cut(magic_enum::enum_name(region));
+		// Stack plots
+		std::string opt  = o_stk_d_S;
+		sh.AddHistos( "evt",     { .fill="Mll",           .pfs={"StackPlotSignal","Year",cut}, .cuts={},.draw=d,.opt=opt,.ranges=r_Stk4});
 	}
 }
 

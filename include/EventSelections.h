@@ -32,9 +32,18 @@ public:
   void define_event_selections();
 
   enum Regions : size_t {
-    Pre_1Lep,
-    Pre_2Lep,
-		Pre_1Lep_MT,
+    Pre_Lep,
+    Pre_e,
+    Pre_u,
+    Pre_ee,
+    Pre_uu,
+    Pre_eu,
+		Lep,
+		Lep_e,
+		Lep_u,
+    DiLep_ee,
+    DiLep_uu,
+    DiLep_eu
     
     };
   typedef Regions Region;
@@ -306,52 +315,130 @@ EventSelections::define_event_selections()
   std::function<bool()> leptonic_triggers;
   if (v.sample.Contains("SingleElectron")||v.sample.Contains("EGamma")) {
     leptonic_triggers = [this] {
-      if (v.year==2016) return
+      if (v.year==2016) {
+				return
         v.HLT_Ele27_WPTight_Gsf==1;
-      else return
+      } else if (v.year==2017) {
+        return
+        v.HLT_Ele32_WPTight_Gsf_L1DoubleEG==1;
+      } else {
+				return
         v.HLT_Ele32_WPTight_Gsf==1;
+			}
     };
   } else if (v.sample.Contains("SingleMuon")) {
     leptonic_triggers = [this] {
-      // Veto events already collected by Single Electron trigger
       if (v.year==2016) {
         return
         v.HLT_IsoMu24==1 ||
         v.HLT_IsoTkMu24==1;
+      } else if (v.year==2017) {
+        return
+        v.HLT_IsoMu27==1;
       } else {
         return
-        v.HLT_IsoMu27==1 ||
-        v.HLT_IsoTkMu27==1;
+        v.HLT_IsoMu24==1;
       }
     };
   } else {
-    // Data histos should not contain events from other datasets
-    leptonic_triggers = [this] { return !v.isData; };
+    leptonic_triggers = [this] {
+      if (v.year==2016) {
+        return
+        v.HLT_Ele27_WPTight_Gsf==1 ||
+        v.HLT_IsoMu24==1 ||
+        v.HLT_IsoTkMu24==1;
+      } else if (v.year==2017) {
+        return
+        v.HLT_Ele32_WPTight_Gsf_L1DoubleEG==1 ||
+        v.HLT_IsoMu27==1;
+      } else {
+        return
+        v.HLT_Ele32_WPTight_Gsf==1 ||
+        v.HLT_IsoMu24==1;
+      }
+    };
   }
   
-  analysis_cuts[Region::Pre_1Lep] = {
-    { .name="NJetPre",    .func = [this] { return v.Jet.Jet.n>=4;              }},
-    { .name="1Lep",       .func = [this] { return v.nLepSelect==1;             }},
+  analysis_cuts[Region::Pre_Lep] = {
+    { .name="NJet",    .func = [this] { return v.Jet.Jet.n>=4;              }},
+    { .name="Lep",       .func = [this] { return v.nLepSelect==1;             }},
     { .name="HLT",        .func =                leptonic_triggers              },
     { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;       }},
   };
-  analysis_cuts[Region::Pre_2Lep] = {
-    { .name="NJetPre",    .func = [this] { return v.Jet.Jet.n>=2;              }},
-    { .name="2Lep",       .func = [this] { return v.nLepSelect==2;             }},
+  analysis_cuts[Region::Pre_e] = {
+    { .name="NJet",    .func = [this] { return v.Jet.Jet.n>=4;              }},
+    { .name="Lep",       .func = [this] { return v.Electron.Select.n==1 && v.Muon.Select.n==0;             }},
+    { .name="HLT",        .func =                leptonic_triggers              },
+    { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;       }},
+  };
+  analysis_cuts[Region::Pre_u] = {
+    { .name="NJet",    .func = [this] { return v.Jet.Jet.n>=4;              }},
+    { .name="Lep",       .func = [this] { return v.Electron.Select.n==0 && v.Muon.Select.n==1;             }},
+    { .name="HLT",        .func =                leptonic_triggers              },
+    { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;       }},
+  };
+  analysis_cuts[Region::Pre_ee] = {
+    { .name="NJet",    .func = [this] { return v.Jet.Jet.n>=2;              }},
+    { .name="2Lep",       .func = [this] { return v.Electron.Select.n==2 && v.Muon.Select.n==0;             }},
+    { .name="HLT",        .func =                leptonic_triggers              },
+    { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;       }},
+  };
+  analysis_cuts[Region::Pre_uu] = {
+    { .name="NJet",    .func = [this] { return v.Jet.Jet.n>=2;              }},
+    { .name="2Lep",       .func = [this] { return v.Electron.Select.n==0 && v.Muon.Select.n==2;             }},
+    { .name="HLT",        .func =                leptonic_triggers              },
+    { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;       }},
+  };
+  analysis_cuts[Region::Pre_eu] = {
+    { .name="NJet",    .func = [this] { return v.Jet.Jet.n>=2;              }},
+    { .name="2Lep",       .func = [this] { return v.Muon.Select.n==1 && v.Electron.Select.n==1;}},
+    { .name="HLT",        .func =                leptonic_triggers              },
+    { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;       }},
+  };
+
+  analysis_cuts[Region::Lep] = {
+    { .name="NJet",    .func = [this] { return v.Jet.Jet.n>=4;              }},
+    { .name="Lep",       .func = [this] { return v.nLepSelect==1;             }},
+    { .name="HLT",        .func =                leptonic_triggers              },
+    { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;       }},
+    { .name="MT",         .func = [this] { return v.MT>=40;                    }},
+  };
+  analysis_cuts[Region::Lep_e] = {
+    { .name="NJet",    .func = [this] { return v.Jet.Jet.n>=4;              }},
+    { .name="Lep",       .func = [this] { return v.Electron.Select.n==1 && v.Muon.Select.n==0; }},
+    { .name="HLT",        .func =                leptonic_triggers              },
+    { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;       }},
+    { .name="MT",         .func = [this] { return v.MT>=40;                    }},
+  };
+  analysis_cuts[Region::Lep_u] = {
+    { .name="NJet",    .func = [this] { return v.Jet.Jet.n>=4;              }},
+    { .name="Lep",       .func = [this] { return v.Electron.Select.n==0 && v.Muon.Select.n==1; }},
+    { .name="HLT",        .func =                leptonic_triggers              },
+    { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;       }},
+    { .name="MT",         .func = [this] { return v.MT>=40;                    }},
+  };
+  analysis_cuts[Region::DiLep_ee] = {
+    { .name="NJet",    .func = [this] { return v.Jet.Jet.n>=2;              }},
+    { .name="2Lep",       .func = [this] { return v.Electron.Select.n==2 && v.Muon.Select.n==0; }},
     { .name="HLT",        .func =                leptonic_triggers              },
     { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;       }},
     { .name="Mll",        .func = [this] { return v.M_2l>20&&!(v.M_2l> 76&&v.M_2l<106);}},
     { .name="MET",        .func = [this] { return v.MET_pt>40;                 }},
   };
-  analysis_cuts[Region::Pre_1Lep_MT] = {
-    { .name="NJetPre",    .func = [this] { return v.Jet.Jet.n>=4;              }},
-    { .name="1Lep",       .func = [this] { return v.nLepSelect==1;             }},
+  analysis_cuts[Region::DiLep_uu] = {
+    { .name="NJet",    .func = [this] { return v.Jet.Jet.n>=2;              }},
+    { .name="2Lep",       .func = [this] { return v.Electron.Select.n==0 && v.Muon.Select.n==2; }},
     { .name="HLT",        .func =                leptonic_triggers              },
     { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;       }},
-    { .name="MT",         .func = [this] { return v.MT>=80;                    }},
+    { .name="Mll",        .func = [this] { return v.M_2l>20&&!(v.M_2l> 76&&v.M_2l<106);}},
+    { .name="MET",        .func = [this] { return v.MET_pt>40;                 }},
   };
-
+  analysis_cuts[Region::DiLep_eu] = {
+    { .name="NJet",    .func = [this] { return v.Jet.Jet.n>=2;              }},
+    { .name="2Lep",       .func = [this] { return v.Muon.Select.n==1 && v.Electron.Select.n==1;}},
+    { .name="HLT",        .func =                leptonic_triggers              },
+    { .name="1b",         .func = [this] { return v.Jet.MediumBTag.n>=1;       }},
+    { .name="MET",        .func = [this] { return v.MET_pt>40;                 }},
+  };
 }
-
-
 #endif // End header guard

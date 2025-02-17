@@ -30,8 +30,8 @@ scramv1 project CMSSW $rel
 echo -e "\n[3] tar -xf $sandbox -C $rel/src/"
 tar -xf $sandbox -C $rel/src/
 
-echo -e "\n[4] cd $rel/src/BoostAnalyzer17"
-cd $rel/src/BoostAnalyzer17
+echo -e "\n[4] cd $rel/src/ttbarToBsToTauTau"
+cd $rel/src/ttbarToBsToTauTau
 
 echo -e "\n[5] cmsenv"
 eval `scramv1 runtime -sh`

@@ -63,9 +63,8 @@ public:
   // N-1 weights
   std::vector<std::vector<double> > w_nm1;
 
-  double triggereff_had = 1.0;
-  double triggereff_lep = 1.0;
-  double triggereff_pho = 1.0;
+  double trigger_had = 1.0;
+  double trigger_lep = 1.0;
 
   std::map<uint32_t, std::string> signal_bins;
 
@@ -92,15 +91,11 @@ public:
   //                Input histograms
 
   TGraphAsymmErrors* trig_had_mu;
-  TGraphAsymmErrors* trig_had_mu_nor2;
   TGraphAsymmErrors* trig_had_ele;
-  TGraphAsymmErrors* trig_had_ele_nor2;
-  TGraphAsymmErrors* trig_had_pho;
-  TGraphAsymmErrors* trig_had_pho_nor2;
-  TGraphAsymmErrors* trig_ele;
-  TGraphAsymmErrors* trig_mu;
-  TGraphAsymmErrors* trig_pho_eb;
-  TGraphAsymmErrors* trig_pho_ee;
+  TH2F* trig_ele;
+  TH2F* trig_mu;
+  TH2F* trig_mu_d;
+  TH2F* trig_mu_m;
 
   TH2F* h_prefmap_photon;
   TH2F* h_prefmap_jet;
@@ -171,49 +166,33 @@ void Weighting::init_input() {
   if (v.year==2016) {
 	  if(v.isAPV) {
     	trig_had_mu       = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016APV_had_mu",       "trig1");
-    	trig_had_mu_nor2  = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016APV_had_mu_nor2",  "trig2");
-    	trig_had_ele      = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016APV_had_ele",      "trig3");
-    	trig_had_ele_nor2 = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016APV_had_ele_nor2", "trig4");
-    	trig_had_pho      = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016APV_had_pho",      "trig5");
-    	trig_had_pho_nor2 = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016APV_had_pho_nor2", "trig6");
-    	trig_ele          = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016APV_ele",          "trig7");
-    	trig_mu           = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016APV_mu",           "trig8");
-    	trig_pho_eb       = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016APV_pho_eb",       "trig9");
-    	trig_pho_ee       = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016APV_pho_ee",       "trig10");
+    	trig_had_ele      = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016APV_had_ele",      "trig2");
+    	trig_ele          = getplot_TH2F("trigger_eff/trig_2016preVFP.root", "EGamma_SF2D",          "trig3");
+    	trig_mu           = getplot_TH2F("trigger_eff/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_SingleMuonTriggers.root", "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdMedium_and_PFIsoMedium_abseta_pt",           "trig6");
+    	trig_mu_d         = getplot_TH2F("trigger_eff/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_SingleMuonTriggers.root", "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdMedium_and_PFIsoMedium_abseta_pt_efficiencyData",           "trig7");
+    	trig_mu_m         = getplot_TH2F("trigger_eff/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_SingleMuonTriggers.root", "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdMedium_and_PFIsoMedium_abseta_pt_efficiencyData",           "trig8");
 		} else {
     	trig_had_mu       = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016_had_mu",       "trig1");
-    	trig_had_mu_nor2  = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016_had_mu_nor2",  "trig2");
-    	trig_had_ele      = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016_had_ele",      "trig3");
-    	trig_had_ele_nor2 = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016_had_ele_nor2", "trig4");
-    	trig_had_pho      = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016_had_pho",      "trig5");
-    	trig_had_pho_nor2 = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016_had_pho_nor2", "trig6");
-    	trig_ele          = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016_ele",          "trig7");
-    	trig_mu           = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016_mu",           "trig8");
-    	trig_pho_eb       = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016_pho_eb",       "trig9");
-    	trig_pho_ee       = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016_pho_ee",       "trig10");
+    	trig_had_ele      = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2016_had_ele",      "trig2");
+    	trig_ele          = getplot_TH2F("trigger_eff/trig_2016postVFP.root", "EGamma_SF2D",          "trig3");
+    	trig_mu           = getplot_TH2F("trigger_eff/Efficiencies_muon_generalTracks_Z_Run2016_UL_SingleMuonTriggers.root", "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdMedium_and_PFIsoMedium_abseta_pt",           "trig6");
+    	trig_mu_d         = getplot_TH2F("trigger_eff/Efficiencies_muon_generalTracks_Z_Run2016_UL_SingleMuonTriggers.root", "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdMedium_and_PFIsoMedium_abseta_pt_efficiencyData",           "trig7");
+    	trig_mu_m         = getplot_TH2F("trigger_eff/Efficiencies_muon_generalTracks_Z_Run2016_UL_SingleMuonTriggers.root", "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdMedium_and_PFIsoMedium_abseta_pt_efficiencyData",           "trig8");
 		}
   } else if (v.year==2017) {
     trig_had_mu       = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2017_had_mu",       "trig1");
-    trig_had_mu_nor2  = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2017_had_mu_nor2",  "trig2");
-    trig_had_ele      = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2017_had_ele",      "trig3");
-    trig_had_ele_nor2 = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2017_had_ele_nor2", "trig4");
-    trig_had_pho      = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2017_had_pho",      "trig5");
-    trig_had_pho_nor2 = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2017_had_pho_nor2", "trig6");
-    trig_ele          = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2017_ele",          "trig7");
-    trig_mu           = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2017_mu",           "trig8");
-    trig_pho_eb       = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2017_pho_eb",       "trig9");
-    trig_pho_ee       = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2017_pho_ee",       "trig10");
+    trig_had_ele      = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2017_had_ele",      "trig2");
+    trig_ele          = getplot_TH2F("trigger_eff/trig_2017.root", "EGamma_SF2D",          "trig3");
+    trig_mu           = getplot_TH2F("trigger_eff/Efficiencies_muon_generalTracks_Z_Run2017_UL_SingleMuonTriggers.root", "NUM_IsoMu27_DEN_CutBasedIdMedium_and_PFIsoMedium_abseta_pt",           "trig6");
+    trig_mu_d         = getplot_TH2F("trigger_eff/Efficiencies_muon_generalTracks_Z_Run2017_UL_SingleMuonTriggers.root", "NUM_IsoMu27_DEN_CutBasedIdMedium_and_PFIsoMedium_abseta_pt_efficiencyData",           "trig7");
+    trig_mu_m         = getplot_TH2F("trigger_eff/Efficiencies_muon_generalTracks_Z_Run2017_UL_SingleMuonTriggers.root", "NUM_IsoMu27_DEN_CutBasedIdMedium_and_PFIsoMedium_abseta_pt_efficiencyData",           "trig8");
   } else if (v.year==2018) {
     trig_had_mu       = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2018_had_mu",       "trig1");
-    trig_had_mu_nor2  = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2018_had_mu_nor2",  "trig2");
-    trig_had_ele      = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2018_had_ele",      "trig3");
-    trig_had_ele_nor2 = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2018_had_ele_nor2", "trig4");
-    trig_had_pho      = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2018_had_pho",      "trig5");
-    trig_had_pho_nor2 = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2018_had_pho_nor2", "trig6");
-    trig_ele          = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2018_ele",          "trig7");
-    trig_mu           = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2018_mu",           "trig8");
-    trig_pho_eb       = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2018_pho_eb",       "trig9");
-    trig_pho_ee       = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2018_pho_ee",       "trig10");
+    trig_had_ele      = getplot_TGraphAsymmErrors("trigger_eff/240602/TriggerEffRun2.root", "2018_had_ele",      "trig2");
+    trig_ele          = getplot_TH2F("trigger_eff/trig_2018.root", "EGamma_SF2D",          "trig3");
+    trig_mu           = getplot_TH2F("trigger_eff/Efficiencies_muon_generalTracks_Z_Run2018_UL_SingleMuonTriggers.root", "NUM_IsoMu24_DEN_CutBasedIdMedium_and_PFIsoMedium_abseta_pt",           "trig6");
+    trig_mu_d         = getplot_TH2F("trigger_eff/Efficiencies_muon_generalTracks_Z_Run2018_UL_SingleMuonTriggers.root", "NUM_IsoMu24_DEN_CutBasedIdMedium_and_PFIsoMedium_abseta_pt_efficiencyData",           "trig7");
+    trig_mu_m         = getplot_TH2F("trigger_eff/Efficiencies_muon_generalTracks_Z_Run2018_UL_SingleMuonTriggers.root", "NUM_IsoMu24_DEN_CutBasedIdMedium_and_PFIsoMedium_abseta_pt_efficiencyData",           "trig8");
   }
 }
 
@@ -720,47 +699,32 @@ double Weighting::calc_lostlep_weight(const double& nSigmaLostLep) {
 
 
 double Weighting::calc_trigger_efficiency(const double& nSigmaTrigger) {
-  // Trigger efficiencies from Janos
-  double eff, err_up, err_down;
-  double eff2, err2_up, err2_down;
-  double binx = -1, v1 = v.AK4_Ht, v2 = v.MET_pt;
-  for (size_t i=0, n=HT_2D_bins.size(); i+1<n; ++i) if (v1>=HT_2D_bins[i]&&v1<HT_2D_bins[i+1])
-    for (size_t j=0, m=MET_2D_bins.size(); j+1<m; ++j) if (v2>=MET_2D_bins[j]&&v2<MET_2D_bins[j+1])
-      binx = i*(m-1)+j;
-
-  // For empty bins, we cannot use the value from the closest bin, 
-  // because the plot is an unrolled 2D one
-  // Calculate also the efficiency used for fake rate region
-  if (v.Muon.Veto.n>=1) {
-    geteff_AE_exactbin(trig_had_mu,       binx, eff,  err_up,  err_down);
-  } else if (v.Electron.Veto.n>=1) {
-    geteff_AE_exactbin(trig_had_ele,      binx, eff,  err_up,  err_down);
-  } else if (v.Photon.PreSelect.n>=1) {
-    geteff_AE_exactbin(trig_had_pho,      binx, eff,  err_up,  err_down);
-    //geteff_AE_exactbin(trig_had_pho_nor2, binx, eff2, err2_up, err2_down);
-    geteff_AE(trig_had_pho_nor2, v.Photon.PreSelect(0).pt, eff2, err2_up, err2_down);
-  } else {
-    geteff_AE_exactbin(trig_had_ele,      binx, eff,  err_up,  err_down);
-  }
-
-  triggereff_had = get_syst_weight(eff,  eff+err_up,   eff-err_down,   nSigmaTrigger);
-
+  double sf = 0, err = 0;
+  double eff1 = 0, eff2 = 0;
   // leptonic trigger efficiencies
-  if (v.Electron.Select.n>0) {
-    geteff_AE(trig_ele, v.Electron.Select(0).pt, eff, err_up, err_down);
-    triggereff_lep = get_syst_weight(eff, eff+err_up, eff-err_down, nSigmaTrigger);
+  if (v.Muon.Select.n==1 && v.Electron.Select.n==1) {
+		if (v.HLT_IsoMu24==1 || v.HLT_IsoTkMu24==1 || v.HLT_IsoMu27==1)
+    	geteff2D(trig_mu, v.Muon.Select(0).pt, abs(v.Muon.Select(0).eta), sf, err);
+		else if(v.HLT_Ele32_WPTight_Gsf==1 || v.HLT_Ele27_WPTight_Gsf==1 || v.HLT_Ele32_WPTight_Gsf_L1DoubleEG==1)
+    	geteff2D(trig_ele, v.Electron.Select(0).pt, v.Electron.Select(0).eta, sf, err);
+    trigger_lep = get_syst_weight(sf, err, nSigmaTrigger);
   } else if (v.Muon.Select.n>0) {
-    geteff_AE(trig_mu, v.Muon.Select(0).pt, eff, err_up, err_down);
-    triggereff_lep = get_syst_weight(eff, eff+err_up, eff-err_down, nSigmaTrigger);
-  } else triggereff_lep = 0;
+    geteff2D(trig_mu, v.Muon.Select(0).pt, abs(v.Muon.Select(0).eta), sf, err);
+    trigger_lep = get_syst_weight(sf, err, nSigmaTrigger);
+		if (v.Muon.Select.n == 2){
+			geteff2D(trig_mu_d, v.Muon.Select(0).pt, abs(v.Muon.Select(0).eta), eff1, err);
+			geteff2D(trig_mu_d, v.Muon.Select(1).pt, abs(v.Muon.Select(1).eta), eff2, err);
+			trigger_lep = 1 - (get_syst_weight(eff1, err, nSigmaTrigger)*get_syst_weight(eff1, err, nSigmaTrigger));
+			geteff2D(trig_mu_m, v.Muon.Select(0).pt, abs(v.Muon.Select(0).eta), eff1, err);
+			geteff2D(trig_mu_m, v.Muon.Select(1).pt, abs(v.Muon.Select(1).eta), eff2, err);
+			trigger_lep *= 1/(1 - (get_syst_weight(eff1, err, nSigmaTrigger)*get_syst_weight(eff1, err, nSigmaTrigger)));
+		}
+  } else if (v.Electron.Select.n>0) {
+    geteff2D(trig_ele, v.Electron.Select(0).pt, v.Electron.Select(0).eta, sf, err);
+    trigger_lep = get_syst_weight(sf, err, nSigmaTrigger);
+  } else trigger_lep = 0;
   
-  // photonic trigger efficiencies
-  if (v.Photon.PreSelect.n>0) {
-      geteff_AE(v.Photon.PreSelect(0).isScEtaEE ? trig_pho_ee : trig_pho_eb, v.Photon.PreSelect(0).pt, eff, err_up, err_down);
-      triggereff_pho = get_syst_weight(eff, eff+err_up, eff-err_down, nSigmaTrigger);
-  } else triggereff_pho = 0;
-  
-	double w = triggereff_lep;
+	double w = trigger_lep;
   return w;
 }
 

@@ -66,17 +66,45 @@ public:
     // Select which scale/correction factors to use for each region
     scale_factors.resize(magic_enum::enum_count<Region>());
     
-    scale_factors[Region::Pre_1Lep].push_back(&sf_ele_medium);
-    scale_factors[Region::Pre_1Lep].push_back(&sf_muon_medium);
-    scale_factors[Region::Pre_1Lep].push_back(&sf_btag_medium);
+    scale_factors[Region::Pre_Lep].push_back(&sf_ele_medium);
+    scale_factors[Region::Pre_Lep].push_back(&sf_muon_medium);
+    scale_factors[Region::Pre_Lep].push_back(&sf_btag_medium);
 
-    scale_factors[Region::Pre_1Lep_MT].push_back(&sf_ele_medium);
-    scale_factors[Region::Pre_1Lep_MT].push_back(&sf_muon_medium);
-    scale_factors[Region::Pre_1Lep_MT].push_back(&sf_btag_medium);
+    scale_factors[Region::Pre_e].push_back(&sf_ele_medium);
+    scale_factors[Region::Pre_e].push_back(&sf_btag_medium);
 
-    scale_factors[Region::Pre_2Lep].push_back(&sf_ele_medium);
-    scale_factors[Region::Pre_2Lep].push_back(&sf_muon_medium);
-    scale_factors[Region::Pre_2Lep].push_back(&sf_btag_medium);
+    scale_factors[Region::Pre_u].push_back(&sf_muon_medium);
+    scale_factors[Region::Pre_u].push_back(&sf_btag_medium);
+
+    scale_factors[Region::Lep].push_back(&sf_ele_medium);
+    scale_factors[Region::Lep].push_back(&sf_muon_medium);
+    scale_factors[Region::Lep].push_back(&sf_btag_medium);
+
+    scale_factors[Region::Lep_e].push_back(&sf_ele_medium);
+    scale_factors[Region::Lep_e].push_back(&sf_btag_medium);
+
+    scale_factors[Region::Lep_u].push_back(&sf_muon_medium);
+    scale_factors[Region::Lep_u].push_back(&sf_btag_medium);
+
+    scale_factors[Region::Pre_uu].push_back(&sf_muon_medium);
+    scale_factors[Region::Pre_uu].push_back(&sf_btag_medium);
+
+    scale_factors[Region::Pre_ee].push_back(&sf_ele_medium);
+    scale_factors[Region::Pre_ee].push_back(&sf_btag_medium);
+
+    scale_factors[Region::Pre_eu].push_back(&sf_ele_medium);
+    scale_factors[Region::Pre_eu].push_back(&sf_muon_medium);
+    scale_factors[Region::Pre_eu].push_back(&sf_btag_medium);
+
+    scale_factors[Region::DiLep_uu].push_back(&sf_muon_medium);
+    scale_factors[Region::DiLep_uu].push_back(&sf_btag_medium);
+
+    scale_factors[Region::DiLep_ee].push_back(&sf_ele_medium);
+    scale_factors[Region::DiLep_ee].push_back(&sf_btag_medium);
+
+    scale_factors[Region::DiLep_eu].push_back(&sf_ele_medium);
+    scale_factors[Region::DiLep_eu].push_back(&sf_muon_medium);
+    scale_factors[Region::DiLep_eu].push_back(&sf_btag_medium);
 
   }
   ~ScaleFactors() {
@@ -664,7 +692,7 @@ ScaleFactors::apply_scale_factors(const unsigned int& syst_index, std::vector<do
   // And we probably don't care about systematics in N-1 weight plots
   if (syst_index==0) {
     //for (const auto& region : magic_enum::enum_values<Region>()) {
-    for (size_t region=0; region<Region::Pre_1Lep; ++region) {
+    for (size_t region=0; region<Region::DiLep_eu; ++region) {
       if (debug) sw_(sw_s6, t_s6, 1);
       size_t n=all_weights.size()+scale_factors[region].size();
       if (w_nm1[region].empty()) w_nm1[region].resize(n,1);

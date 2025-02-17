@@ -88,7 +88,7 @@
 #define ELE_VETO_IP_3D_CUT     4   // For skim only
 #define ELE_VETO_ABSISO_CUT    5   // For skim only
 
-#define ELE_SELECT_PT_CUT      25
+#define ELE_SELECT_PT_CUT      36
 #define ELE_SELECT_ETA_CUT     2.5
 #define ELE_SELECT_MINIISO_CUT 0.1
 #define ELE_SELECT_IP_D0_CUT   0.05
@@ -151,7 +151,7 @@
 #define MU_VETO_ABSISO_CUT     10  // For skim only
 #define MU_VETO_IP_3D_CUT      4   // For skim only
 
-#define MU_SELECT_PT_CUT       25
+#define MU_SELECT_PT_CUT       28
 #define MU_SELECT_ETA_CUT      2.4
 #define MU_SELECT_MINIISO_CUT  0.2
 #define MU_SELECT_IP_D0_CUT    0.05
@@ -1254,6 +1254,7 @@ private:
   
     if (debug) std::cout<<"Variables::define_leptons_and_photons_: init AK8 jet collection"<<std::endl;
 
+		bool lead = true;
     // Electrons - full definitions
     while (Electron.Loop()) {
       float pt      = Electron().pt;
@@ -1341,12 +1342,23 @@ private:
         Electron.Veto       .define((miniIso <  ELE_VETO_MINIISO_CUT));
 
       // Select
-      Electron.Select.define( id_noIso_WP90 &&
+			if (lead) Electron.Select.define( id_noIso_WP90 &&
                               pt        >= ELE_SELECT_PT_CUT &&
                               abseta    <  ELE_SELECT_ETA_CUT && !(abseta>=1.442 && abseta< 1.556) &&
                               miniIso   <  ELE_SELECT_MINIISO_CUT &&
                               absd0     <  ELE_SELECT_IP_D0_CUT &&
                               absdz     <  ELE_SELECT_IP_DZ_CUT);
+			else Electron.Select.define( id_noIso_WP90 &&
+                              pt        >= 20 &&
+                              abseta    <  ELE_SELECT_ETA_CUT && !(abseta>=1.442 && abseta< 1.556) &&
+                              miniIso   <  ELE_SELECT_MINIISO_CUT &&
+                              absd0     <  ELE_SELECT_IP_D0_CUT &&
+                              absdz     <  ELE_SELECT_IP_DZ_CUT);
+      if ( id_noIso_WP90 && pt >= ELE_SELECT_PT_CUT &&
+                              abseta    <  ELE_SELECT_ETA_CUT && !(abseta>=1.442 && abseta< 1.556) &&
+                              miniIso   <  ELE_SELECT_MINIISO_CUT &&
+                              absd0     <  ELE_SELECT_IP_D0_CUT &&
+                              absdz     <  ELE_SELECT_IP_DZ_CUT) lead = false;
       
       if ( pt        >= ELE_TIGHT_PT_CUT &&
            abseta    <  ELE_TIGHT_ETA_CUT && !(abseta>=1.442 && abseta< 1.556) &&
@@ -1364,7 +1376,7 @@ private:
     }
     if (debug) std::cout<<"Variables::define_leptons_and_photons_: end electron definitions"<<std::endl;
 
-
+		lead = true;
     // Muons - full definitions
     while (Muon.Loop()) {
       float pt      = Muon().pt;
@@ -1460,12 +1472,23 @@ private:
         //Muon.CBMedium      .define(miniIso < 0.2);
         Muon.CBMedium      .define(miniIso < 1.2);
       // Select
-      Muon.Select.define( Muon().mediumPromptId &&
+			if(lead) Muon.Select.define( Muon().mediumPromptId &&
                           pt        >= MU_SELECT_PT_CUT &&
                           abseta    <  MU_SELECT_ETA_CUT &&
                           miniIso   <  MU_SELECT_MINIISO_CUT &&
                           absd0     <  MU_SELECT_IP_D0_CUT &&
                           absdz     <  MU_SELECT_IP_DZ_CUT);
+			else Muon.Select.define( Muon().mediumPromptId &&
+                          pt        >= 20 &&
+                          abseta    <  MU_SELECT_ETA_CUT &&
+                          miniIso   <  MU_SELECT_MINIISO_CUT &&
+                          absd0     <  MU_SELECT_IP_D0_CUT &&
+                          absdz     <  MU_SELECT_IP_DZ_CUT);
+			if(Muon().mediumPromptId && pt >= MU_SELECT_PT_CUT &&
+                          abseta    <  MU_SELECT_ETA_CUT &&
+                          miniIso   <  MU_SELECT_MINIISO_CUT &&
+                          absd0     <  MU_SELECT_IP_D0_CUT &&
+                          absdz     <  MU_SELECT_IP_DZ_CUT) lead = false;
 
 			if(isData && sample.Contains("SingleMuon") && Muon().mediumPromptId && pt >= MU_SELECT_PT_CUT && abseta < MU_SELECT_ETA_CUT && miniIso < MU_SELECT_MINIISO_CUT && absd0 < MU_SELECT_IP_D0_CUT && absdz < MU_SELECT_IP_DZ_CUT) {
       	while(TrigObj.Loop()){
@@ -1497,8 +1520,8 @@ private:
       // Use Loose working point
       int WP = 2; // 0: VLoose, 1: Loose, 2: Medium, 3: Tight
       int bm_jet = 4<<WP;
-      int bm_e   = 4<<WP;
-      int bm_mu  = 1<<WP;
+      int bm_e   = 2<<WP;
+      int bm_mu  = 2<<WP;
       Tau.Select.define(( Tau().pt            >= TAU_VETO_PT_CUT &&
                         std::abs(Tau().eta) <  TAU_VETO_ETA_CUT &&
                         ( ((Tau().idDeepTau2017v2p1VSjet & bm_jet) == bm_jet) ||
@@ -2110,13 +2133,13 @@ private:
     // M(2l), dPhi(2l, MET), MET + 2l
     MET_2l.SetXYZ(MET_px, MET_py, 0);
     LorentzVector lep_pair;
-    if (Electron.Select.n==2&&Muon.Veto.n==0) {
+    if (Electron.Select.n == 2) {
       MET_2l += Vector3(Electron.Select.v4(0).Px(), Electron.Select.v4(0).Py(), 0);
       MET_2l += Vector3(Electron.Select.v4(1).Px(), Electron.Select.v4(1).Py(), 0);
       lep_pair = Electron.Select.v4(0)+Electron.Select.v4(1);
       M_2l = lep_pair.M();
       dPhi_2l_met = std::abs(DeltaPhi(lep_pair.Phi(), MET_phi));
-    } else if (Electron.Veto.n==0&&Muon.Select.n==2) {
+    } else if (Muon.Select.n ==2 ) {
       MET_2l += Vector3(Muon.Select.v4(0).Px(), Muon.Select.v4(0).Py(), 0);
       MET_2l += Vector3(Muon.Select.v4(1).Px(), Muon.Select.v4(1).Py(), 0);
       lep_pair = Muon.Select.v4(0)+Muon.Select.v4(1);
@@ -2179,10 +2202,6 @@ private:
         double dphi_metpho = std::abs(DeltaPhi(MET_pho.Phi(), Jet.Jet().phi));
         if (dphi_metpho<minDeltaPhi_pho) minDeltaPhi_pho = dphi_metpho;
         // jet lep-pair angle
-        if (M_2l!=-NOVAL_F) {
-          double dphi_2l = std::abs(DeltaPhi(lep_pair.Phi(), Jet.Jet().phi));
-          if (dphi_2l<dPhi_2l_jet) dPhi_2l_jet = dphi_2l;
-        }
       }
 
       // ISR jets counting

@@ -338,7 +338,6 @@ int main(int argc, char** argv) {
 
   // Top pt reweighting
   bool doTopPtReweighting = false;
-  //if ( settings.doTopPtReweighting && samplename.Contains("TT_powheg-pythia8")) {
   if ( settings.doTopPtReweighting && samplename.Contains("TTTo") && samplename.Contains("powheg-pythia8")) {
     std::cout<<"doTopPtReweighting (settings): true"<<std::endl;    
     doTopPtReweighting = true;

@@ -119,9 +119,9 @@ if opt.replot:
 if opt.test:
     EXEC_PATH = os.getcwd()
 elif opt.replot:
-    EXEC_PATH = opt.OUTDIR+"/BoostAnalyzer17_replot"
+    EXEC_PATH = opt.OUTDIR+"/ttbarToBsToTauTau_replot"
 else:
-    EXEC_PATH = opt.OUTDIR+"/BoostAnalyzer17"
+    EXEC_PATH = opt.OUTDIR+"/ttbarToBsToTauTau"
 
 # Print some options for logging
 if not opt.run:
@@ -573,11 +573,11 @@ def compile(Ana = 1, Plotter = 1):
 def create_sandbox(backup_dir, update):
     print("Creating sandbox for condor")
     print()
-    sandbox = os.path.split(backup_dir)[0]+"/sandbox-BoostAnalyzer17.tar"
-    #sandbox = "sandbox-BoostAnalyzer17.tar"
+    sandbox = os.path.split(backup_dir)[0]+"/sandbox-ttbarToBsToTauTau.tar"
+    #sandbox = "sandbox-ttbarToBsToTauTau.tar"
     if update:
         special_call(["rm", sandbox], opt.run)
-    special_call(["tar", "-cf", sandbox, "-C", os.path.split(backup_dir)[0], "BoostAnalyzer17"], opt.run)
+    special_call(["tar", "-cf", sandbox, "-C", os.path.split(backup_dir)[0], "ttbarToBsToTauTau"], opt.run)
     special_call(["chmod", "755", sandbox], opt.run)
     print()
 
@@ -754,14 +754,14 @@ def merge_output(ana_arguments, last_known_status):
     alldir = sorted(glob.glob("filelists/*/*"))
     os.chdir(saved_path)
     for listdir in alldir:
-        haddoutfile = (EXEC_PATH+"/"+listdir).replace("BoostAnalyzer17/filelists","hadd").replace("2016/","2016_").replace("2017/","2017_").replace("2018/","2018_").replace("2016APV/","2016APV_")+".root"
+        haddoutfile = (EXEC_PATH+"/"+listdir).replace("ttbarToBsToTauTau/filelists","hadd").replace("2016/","2016_").replace("2017/","2017_").replace("2018/","2018_").replace("2016APV/","2016APV_")+".root"
         if os.path.exists(haddoutfile):
             if os.path.getsize(haddoutfile)>1024:
                 all_ready.append(haddoutfile)
             elif os.path.getsize(haddoutfile)==1024 and (time.time()-os.path.getmtime(haddoutfile))>3600:
                 ready = []
                 for item in sorted(glob.glob(EXEC_PATH+"/"+listdir+"/*.txt")):
-                    hadded = item.replace("BoostAnalyzer17/filelists/","hadd/").replace("/data/","_").replace("/signals/","_").replace("/backgrounds/","_").replace(".txt",".root")
+                    hadded = item.replace("ttbarToBsToTauTau/filelists/","hadd/").replace("/data/","_").replace("/signals/","_").replace("/backgrounds/","_").replace(".txt",".root")
                     if os.path.exists(hadded):
                         if os.path.getsize(hadded)>1024:
                             ready.append(hadded)
@@ -772,7 +772,7 @@ def merge_output(ana_arguments, last_known_status):
             ready = []
             allitem = sorted(glob.glob(EXEC_PATH+"/"+listdir+"/*.txt"))
             for item in allitem:
-                hadded = item.replace("BoostAnalyzer17/filelists/","hadd/").replace("/data/","_").replace("/signals/","_").replace("/backgrounds/","_").replace(".txt",".root")
+                hadded = item.replace("ttbarToBsToTauTau/filelists/","hadd/").replace("/data/","_").replace("/signals/","_").replace("/backgrounds/","_").replace(".txt",".root")
                 if os.path.exists(hadded):
                     if os.path.getsize(hadded)>1024:
                         ready.append(hadded)
@@ -1203,8 +1203,8 @@ def analysis(ana_arguments, last_known_status, last_condor_jobid, nproc):
                         latest_log_file = opt.OUTDIR+"/log/condor_task_"+str(batch_number)+".log"
                         submittime = int(time.time())
                         print(joblist_to_submit)
-                        logged_call(["condor/submit_condor_task.sh", site, opt.OUTDIR+"/sandbox-BoostAnalyzer17.tar", joblist_to_submit], latest_log_file, opt.run)
-                        #logged_call(["condor/submit_condor_task.sh", site, "sandbox-BoostAnalyzer17.tar", joblist_to_submit], latest_log_file, opt.run)
+                        logged_call(["condor/submit_condor_task.sh", site, opt.OUTDIR+"/sandbox-ttbarToBsToTauTau.tar", joblist_to_submit], latest_log_file, opt.run)
+                        #logged_call(["condor/submit_condor_task.sh", site, "sandbox-ttbarToBsToTauTau.tar", joblist_to_submit], latest_log_file, opt.run)
                         with open(latest_log_file) as latest_log:
                             for line in latest_log.readlines():
                                 if "submitted to cluster" in line:
@@ -1237,6 +1237,8 @@ def analysis(ana_arguments, last_known_status, last_condor_jobid, nproc):
             if os.path.exists(final_hadded_filename):
                 if os.path.getsize(final_hadded_filename)>1024:
                     finished = True
+            elif opt.nohadd and nfinished==njob:
+                finished = True
             
             # 7) Sleep 10 minutes between condor job check iterations
             if not finished and opt.condor:
