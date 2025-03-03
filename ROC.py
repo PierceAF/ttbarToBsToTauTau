@@ -6,10 +6,11 @@ user inputs. (un)comment and add as needed for the variables, channels, signals 
 backgrounds.
 
 ROOT file structure: 
-filename/variable/signal(or background)_year_channel
+filename.root --> variable/signal(or background)_year_channel
 
 example file:
-run_2025_02_26/JetPt/DYToLL_2018_Pre_Lep
+run_2025_02_26.root --> JetPt/DYToLL_2018_Pre_Lep
+
 '''
 
 #### user inputs ####
