@@ -1,8 +1,22 @@
+'''
+This code draws ROC curves for ROOT files produced by the analysis framework in this 
+repository. The ROC curves are produced from the sum of the signal histograms vs the 
+sum of the background histograms for a given set of variables and channels that the
+user inputs. (un)comment and add as needed for the variables, channels, signals and
+backgrounds.
+
+ROOT file structure: 
+filename/variable/signal(or background)_year_channel
+
+example file:
+run_2025_02_26/JetPt/DYToLL_2018_Pre_Lep
+'''
+
 #### user inputs ####
 
 filename = 'run_2025_02_26'
 
-#directories in root file
+# directories in root file
 vars = [
         # "JetPt",
         # "JetEta",
@@ -22,7 +36,7 @@ vars = [
         # "LeadMuEta"
 ]
 
-#files within each root directory
+# files within each root directory
 channels = [
             "Pre_Lep",
             "Pre_e",
@@ -43,10 +57,12 @@ channels = [
 
 year = "2018"
 
+# signal histograms to be summed together
 signals = [
            "TT_powheg_pythia8"
 ]
 
+# background histograms to be summed together
 backgrounds = [
                "Multijet",
                "DYToLL",
@@ -110,8 +126,8 @@ def DrawROC(sig, bkg, pname='sync.pdf', isLegend=False):
     for i in range(6):
         cms_lat.SetTextColor(1)
         cms_lat.SetTextSize(0.03)
-#        cms_lat.DrawLatex(x1[i+1], y1[i+1]+0.02, f'{10*(i+1):.0f}') python3
-#        cms_lat.DrawLatex(x1[i+1], y1[i+1]+0.02, '{}'.format(10*(i+1))) #python2
+#        cms_lat.DrawLatex(x1[i+1], y1[i+1]+0.02, f'{10*(i+1):.0f}') # python3
+#        cms_lat.DrawLatex(x1[i+1], y1[i+1]+0.02, '{}'.format(10*(i+1))) # python2
 
     # Add legend if specified
     if isLegend:
@@ -140,22 +156,22 @@ def get_histogram(file, hist_name):
         return hist
 
 
-#append signal names together
-#for file names
+# append signal names together:
+# for file names
 sigNames = signals[0]
 for signal in signals[1:]:
     sigNames = sigNames + '_' + signal
-#for plot labels
+# for plot labels
 sigNames2 = signals[0]
 for signal in signals[1:]:
     sigNames2 = sigNames2 + ', ' + signal
 
-#append background names together
-#for file names
+# append background names together:
+# for file names
 bkgNames = backgrounds[0]
 for bkg in backgrounds[1:]:
     bkgNames = bkgNames + '_' + bkg
-#for plot labels
+# for plot labels
 bkgNames2 = backgrounds[0]
 for bkg in backgrounds[1:]:
     bkgNames2 = bkgNames2 + ', ' + bkg
@@ -184,7 +200,7 @@ for var in vars:
             hist_name = var + "/" + background + "_" + year + "_" + channel
             bkg.Add(get_histogram(file, hist_name))
 
-    #make the ROC curve file
+    # make the ROC curve file
         if sig and bkg:
             dir_name = 'ROC_Plots/' + filename + '/' + var + '/'
             try:
