@@ -1,5 +1,6 @@
 ## Installation
-- This analysis framework requires only ROOT and GCC (you don't need to set up CMSSW but need to check ROOT version dependency), You need singularity if you're system's OS is Alma9
+- This analysis framework requires only ROOT and GCC (you don't need to set up CMSSW but need to check ROOT version dependency). You need singularity if you're system is OS is Alma9.
+- For HiPerGator:
 - ```source /cvmfs/cms.cern.ch/cmsset_default.sh```
 - ```cmssw-el7```
 - ```cmsrel CMSSW_10_2_16_UL```
